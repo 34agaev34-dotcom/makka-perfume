@@ -694,6 +694,227 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
 .js [data-reveal] { opacity: 0; translate: 0 26px; transition: opacity 1s var(--ease), translate 1s var(--ease); transition-delay: var(--d, 0s); }
 .js [data-reveal].in { opacity: 1; translate: none; }
 
+/* ---------- Плавная прокрутка (Lenis) ---------- */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto; }
+.lenis.lenis-stopped { overflow: clip; }
+
+/* ---------- Свой курсор и дымка за ним ---------- */
+.cursor { position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none; transition: opacity .3s; }
+.cursor.is-hidden { opacity: 0; }
+.cursor__dot, .cursor__ring { position: absolute; left: 0; top: 0; border-radius: 50%; translate: -50% -50%; will-change: transform; }
+.cursor__dot { width: 6px; height: 6px; background: var(--accent); }
+.cursor__ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(212, 176, 138, .55);
+  transition: width .4s var(--ease), height .4s var(--ease), background-color .3s, border-color .3s;
+}
+.cursor.is-link .cursor__ring { width: 70px; height: 70px; background: rgba(212, 176, 138, .1); border-color: rgba(212, 176, 138, .85); }
+.cursor.is-down .cursor__ring { width: 28px; height: 28px; }
+.has-cursor, .has-cursor * { cursor: none !important; }
+.smoke { position: fixed; inset: 0; z-index: 35; width: 100%; height: 100%; pointer-events: none; }
+
+/* ---------- Пирамида нот: флакон наполняется при прокрутке ---------- */
+.pyramid__track { position: relative; }
+.js .pyramid__track { height: 380vh; }
+.pyramid__sticky { position: relative; padding-block: clamp(96px, 13vw, 176px); }
+.js .pyramid__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: calc(var(--header-h) + 8px) 40px;
+  overflow: hidden;
+}
+.pyramid__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: center;
+}
+.pyramid .h2 { margin-bottom: clamp(24px, 3.4vw, 44px); font-size: clamp(2.4rem, 4.4vw, 3.8rem); }
+.tiers { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.tier {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  transition: opacity .6s var(--ease), translate .7s var(--ease);
+}
+.js .tier { opacity: .3; }
+.js .tier.is-done { opacity: .55; }
+.js .tier.is-active { opacity: 1; }
+.tier__num { padding-top: 3px; font-family: var(--serif); font-size: 1rem; color: var(--accent); }
+.tier__label { margin: 0 0 6px; font-size: .75rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.tier__notes { margin: 0; font-family: var(--serif); font-size: clamp(1.5rem, 2.3vw, 2.05rem); line-height: 1.15; }
+.tier__more { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .6s var(--ease); }
+.js .tier__more { grid-template-rows: 0fr; }
+.js .tier.is-active .tier__more { grid-template-rows: 1fr; }
+.tier__more p { min-height: 0; overflow: hidden; margin: 0; }
+.tier__more span { display: block; padding-top: 10px; max-width: 42ch; font-size: 1rem; color: var(--muted); }
+
+.pyramid__visual { position: relative; display: grid; place-items: center; }
+.pyramid__visual::before {
+  content: "";
+  position: absolute;
+  width: 90%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(212, 176, 138, .2), rgba(212, 176, 138, .05) 60%, transparent 78%);
+  opacity: calc(.35 + var(--p, 1) * .65);
+}
+.bottle { position: relative; width: min(100%, 340px); height: auto; max-height: calc(100svh - var(--header-h) - 80px); overflow: visible; }
+.bottle__cap { transform-box: fill-box; transform-origin: 50% 100%; }
+.mist circle { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.bottle.is-open .mist circle { animation: mist 3.4s ease-out infinite; animation-delay: calc(var(--k) * .7s); }
+@keyframes mist {
+  0% { opacity: 0; transform: translate(0, 0) scale(.3); }
+  18% { opacity: .7; }
+  100% { opacity: 0; transform: translate(var(--dx), -160px) scale(2.8); }
+}
+.pyramid__progress { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 22px; height: 1px; background: var(--line); }
+.pyramid__progress span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+.pyramid__progress { display: none; }
+.js .pyramid__progress { display: block; }
+
+/* ---------- Каталог ароматов ---------- */
+.catalog__head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 28px 48px; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; }
+.cards {
+  list-style: none;
+  margin: clamp(36px, 5vw, 64px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 28px);
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color .4s, translate .6s var(--ease), opacity 1s var(--ease);
+}
+.card[hidden] { display: none; }
+.js .card[data-reveal] { transition: opacity 1s var(--ease), translate 1s var(--ease), border-color .4s; transition-delay: var(--d, 0s), var(--d, 0s), 0s; }
+.card:hover { border-color: rgba(212, 176, 138, .45); }
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(280px circle at var(--x, 50%) var(--y, 30%), rgba(212, 176, 138, .16), transparent 70%);
+  opacity: 0;
+  transition: opacity .4s;
+}
+.card:hover::after { opacity: 1; }
+.card__media { position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; background: #0a0908; }
+.card__media::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 40%;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+.card__media img { width: 100%; height: 100%; object-fit: cover; transition: scale 1.2s var(--ease), filter .6s; filter: saturate(.9); }
+.card:hover .card__media img { scale: 1.07; filter: saturate(1.05); }
+.card__body { display: flex; flex-direction: column; flex: 1; padding: 4px 20px 22px; }
+.card__family { margin: 0 0 6px; font-size: .6875rem; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+.card__title { margin: 0 0 8px; font-family: var(--serif); font-weight: 400; font-size: clamp(1.35rem, 1.8vw, 1.65rem); line-height: 1.15; }
+.card__notes { margin: 0 0 18px; font-size: .875rem; line-height: 1.5; color: var(--muted); }
+.card__btn {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(212, 176, 138, .4);
+  color: var(--accent);
+  font-size: .875rem;
+  font-weight: 500;
+  transition: border-color .3s;
+}
+.card__btn::before { content: ""; position: absolute; inset: 0; z-index: 2; }
+.card__btn .ic { transition: translate .4s var(--ease); }
+.card:hover .card__btn { border-color: var(--accent); }
+.card:hover .card__btn .ic { translate: 3px -3px; }
+.card.is-pop { animation: pop .7s var(--ease) both; animation-delay: calc(var(--n, 0) * 60ms); }
+@keyframes pop { from { opacity: 0; translate: 0 22px; } }
+.catalog__note { margin: 28px 0 0; font-size: .875rem; color: var(--muted); }
+::view-transition-group(*) { animation-duration: .55s; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
+
+/* ---------- Масляные или спиртовые ---------- */
+.compare__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: center;
+}
+.compare__media { position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface); }
+.compare__media img { width: 100%; height: 100%; object-fit: cover; scale: 1.12; }
+@supports (animation-timeline: view()) {
+  .js .compare__media img { animation: pan linear both; animation-timeline: view(); }
+  @keyframes pan { from { translate: 0 -5%; } to { translate: 0 5%; } }
+}
+.cmp { width: 100%; margin-top: clamp(28px, 4vw, 48px); border-collapse: collapse; }
+.cmp th, .cmp td { padding: 18px 18px 18px 0; text-align: left; vertical-align: top; font-weight: 400; border-top: 1px solid var(--line); }
+.cmp thead th { padding-top: 0; border-top: 0; font-size: .75rem; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.cmp thead .is-oil { color: var(--accent); }
+.cmp tbody th { width: 24%; padding-top: 21px; font-size: .8125rem; color: var(--muted); }
+.cmp .is-oil { padding-left: 18px; }
+.cmp tbody .is-oil { background: rgba(212, 176, 138, .06); font-family: var(--serif); font-size: 1.2rem; line-height: 1.3; }
+.cmp tbody td:last-child { color: var(--muted); }
+.cmp tbody tr { transition: opacity .9s var(--ease), translate .9s var(--ease); transition-delay: calc(var(--i) * 90ms + .1s); }
+.js .cmp:not(.in) tbody tr { opacity: 0; translate: 0 14px; }
+
+/* ---------- Как заказать ---------- */
+.steps {
+  position: relative;
+  list-style: none;
+  margin: clamp(40px, 5vw, 72px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 56px);
+}
+.steps::before {
+  content: "";
+  position: absolute;
+  left: 34px;
+  right: 0;
+  top: 34px;
+  height: 1px;
+  background: linear-gradient(to right, var(--accent), var(--line-strong));
+  transform-origin: left;
+  transition: transform 1.8s var(--ease) .2s;
+}
+.js .steps:not(.in)::before { transform: scaleX(0); }
+.step { position: relative; }
+.step__num {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: var(--bg);
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+.step h3 { margin: 28px 0 10px; font-family: var(--serif); font-weight: 400; font-size: clamp(1.5rem, 2.2vw, 1.9rem); line-height: 1.15; }
+.step p { margin: 0; max-width: 34ch; color: var(--muted); }
+
 /* ============================================================
    Планшет и телефон
    ============================================================ */
@@ -740,6 +961,55 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
 
   .contacts__grid { grid-template-columns: minmax(0, 1fr); }
   .fab { display: flex; }
+
+  .js .pyramid__track { height: 340vh; }
+  .js .pyramid__sticky { align-items: flex-start; padding-top: calc(var(--header-h) + 36px); padding-bottom: 32px; }
+  .pyramid__inner { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .pyramid__visual { order: -1; }
+  .bottle { width: auto; height: 38svh; max-height: none; }
+  .pyramid .eyebrow { margin-bottom: 8px; }
+  .pyramid .h2 { margin-bottom: 18px; font-size: clamp(2rem, 9vw, 2.6rem); }
+  .js .tiers { position: relative; min-height: 190px; border-top: 0; }
+  .js .tier { position: absolute; inset: 0 0 auto; padding: 0; border-bottom: 0; opacity: 0; translate: 0 14px; }
+  .js .tier.is-done { opacity: 0; }
+  .js .tier.is-active { opacity: 1; translate: none; }
+  .tier__notes { font-size: 1.6rem; }
+
+  .catalog__head { align-items: flex-start; }
+  .filters {
+    flex-wrap: nowrap;
+    width: calc(100% + var(--gutter) * 2);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filters .chip { flex: none; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card__body { padding: 2px 14px 16px; }
+  .card__title { font-size: 1.2rem; }
+  .card__notes { font-size: .8125rem; margin-bottom: 14px; }
+  .card__family { font-size: .625rem; letter-spacing: .18em; }
+
+  .compare__grid { grid-template-columns: minmax(0, 1fr); }
+  .compare__media { aspect-ratio: 16 / 11; }
+  .cmp, .cmp thead, .cmp tbody { display: block; }
+  .cmp tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 14px; }
+  .cmp thead th:first-child { display: none; }
+  .cmp thead th { padding-bottom: 10px; }
+  .cmp tbody th { grid-column: 1 / -1; width: auto; padding: 16px 0 6px; }
+  .cmp td { padding: 0 0 16px; border-top: 0; }
+  .cmp .is-oil { padding-left: 0; }
+  .cmp tbody .is-oil { background: none; font-size: 1.05rem; color: var(--text); }
+  .cmp tbody td { font-size: .9375rem; }
+
+  .steps { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .steps::before { left: 34px; right: auto; top: 34px; bottom: 34px; width: 1px; height: auto; background: linear-gradient(to bottom, var(--accent), var(--line-strong)); transform-origin: top; }
+  .js .steps:not(.in)::before { transform: scaleY(0); }
+  .step { display: grid; grid-template-columns: 68px minmax(0, 1fr); column-gap: 20px; }
+  .step__num { grid-row: span 2; }
+  .step h3 { margin: 12px 0 6px; }
 }
 @media (max-width: 520px) {
   .hero__cta .btn--ghost { display: none; }
@@ -767,6 +1037,15 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
   .notes__list { flex-wrap: wrap; justify-content: center; row-gap: 8px; }
   .notes__list[aria-hidden="true"] { display: none; }
   .js [data-reveal] { opacity: 1; translate: none; }
+  .js .pyramid__track { height: auto; }
+  .js .pyramid__sticky { position: relative; height: auto; display: block; padding-block: clamp(96px, 13vw, 176px); }
+  .js .tiers { min-height: 0; }
+  .js .tier { position: static !important; opacity: 1 !important; translate: none !important; padding: 20px 0 !important; }
+  .js .tier__more { grid-template-rows: 1fr; }
+  .js .pyramid__progress { display: none; }
+  .js .cmp:not(.in) tbody tr { opacity: 1; translate: none; }
+  .js .steps:not(.in)::before { transform: none; }
+  .smoke, .cursor { display: none !important; }
 }
 </style>
 </head>
@@ -789,7 +1068,8 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
   <div class="wrap header__inner">
     <nav class="nav" aria-label="Основное меню">
       <a href="#about">Обо мне</a>
-      <a href="#services">Чем помогу</a>
+      <a href="#catalog">Ароматы</a>
+      <a href="#order">Как заказать</a>
       <a href="#contacts">Контакты</a>
     </nav>
     <div class="header__actions">
@@ -806,8 +1086,9 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
 <div class="menu" id="menu" inert>
   <nav class="menu__nav" aria-label="Меню">
     <a href="#about" style="--i:0">Обо мне</a>
-    <a href="#services" style="--i:1">Чем помогу</a>
-    <a href="#contacts" style="--i:2">Контакты</a>
+    <a href="#catalog" style="--i:1">Ароматы</a>
+    <a href="#order" style="--i:2">Как заказать</a>
+    <a href="#contacts" style="--i:3">Контакты</a>
   </nav>
   <a class="btn btn--primary btn--wide" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Хочу подобрать аромат." target="_blank" rel="noopener">
     <svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>Написать в WhatsApp
@@ -833,7 +1114,7 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
           <a class="btn btn--primary magnetic" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Хочу подобрать аромат." target="_blank" rel="noopener">
             <svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>Написать в WhatsApp
           </a>
-          <a class="btn btn--ghost magnetic" href="#services">Чем помогу</a>
+          <a class="btn btn--ghost magnetic" href="#catalog">Смотреть ароматы</a>
         </div>
       </div>
 
@@ -873,6 +1154,104 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
         <p class="statement">Меня зовут Макка. Я увлечена парфюмерией и особенно масляными ароматами: они раскрываются на коже мягко, звучат близко и остаются с вами надолго.</p>
         <p class="about__text" data-reveal>С радостью обсужу ваши любимые композиции, расскажу о нотах и помогу с выбором. Здесь вы создадите историю своего аромата.</p>
         <p class="motto" data-reveal><span>Твой аромат,</span><span>твоя история</span></p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================= Пирамида нот ================= -->
+  <section class="pyramid" id="pyramid" aria-labelledby="pyr-title">
+    <div class="pyramid__track">
+      <div class="pyramid__sticky">
+        <div class="wrap pyramid__inner">
+          <div class="pyramid__copy">
+            <p class="eyebrow">Как раскрывается аромат</p>
+            <h2 class="h2" id="pyr-title">Пирамида нот</h2>
+            <ol class="tiers">
+              <li class="tier">
+                <span class="tier__num">01</span>
+                <div>
+                  <p class="tier__label">База · до вечера</p>
+                  <p class="tier__notes">Уд, амбра, сандал, мускус</p>
+                  <div class="tier__more"><p><span>Фундамент аромата. Звучит дольше всего и остаётся на коже, когда остальные ноты уже ушли.</span></p></div>
+                </div>
+              </li>
+              <li class="tier">
+                <span class="tier__num">02</span>
+                <div>
+                  <p class="tier__label">Сердце · несколько часов</p>
+                  <p class="tier__notes">Роза, жасмин, шафран</p>
+                  <div class="tier__more"><p><span>Характер аромата. Раскрывается минут через двадцать и звучит большую часть дня.</span></p></div>
+                </div>
+              </li>
+              <li class="tier">
+                <span class="tier__num">03</span>
+                <div>
+                  <p class="tier__label">Верх · первые минуты</p>
+                  <p class="tier__notes">Бергамот, нероли, розовый перец</p>
+                  <div class="tier__more"><p><span>Первое впечатление. Самые лёгкие ноты: их слышно сразу, и они первыми уступают место сердцу.</span></p></div>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="pyramid__visual">
+            <svg class="bottle" viewBox="0 0 260 420" role="img" aria-label="Флакон наполняется слоями нот: база, сердце, верх">
+              <defs>
+                <clipPath id="bottle-clip"><rect x="46" y="150" width="168" height="236" rx="20"/></clipPath>
+                <linearGradient id="g-glass" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#efe9e0" stop-opacity=".11"/>
+                  <stop offset=".2" stop-color="#efe9e0" stop-opacity=".03"/>
+                  <stop offset=".8" stop-color="#efe9e0" stop-opacity=".02"/>
+                  <stop offset="1" stop-color="#efe9e0" stop-opacity=".09"/>
+                </linearGradient>
+                <linearGradient id="g-gold" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#7a5a3a"/>
+                  <stop offset=".45" stop-color="#ecd1ad"/>
+                  <stop offset=".62" stop-color="#d4b08a"/>
+                  <stop offset="1" stop-color="#6e5034"/>
+                </linearGradient>
+                <linearGradient id="g-cap" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#0c0b0a"/>
+                  <stop offset=".35" stop-color="#2b251f"/>
+                  <stop offset=".55" stop-color="#16130f"/>
+                  <stop offset="1" stop-color="#090807"/>
+                </linearGradient>
+                <linearGradient id="g-base" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#7d4822"/><stop offset="1" stop-color="#3a1f0f"/></linearGradient>
+                <linearGradient id="g-heart" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#cf9272"/><stop offset="1" stop-color="#9a583e"/></linearGradient>
+                <linearGradient id="g-top" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f3e4c6"/><stop offset="1" stop-color="#d8b789"/></linearGradient>
+                <filter id="f-mist" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="7"/></filter>
+              </defs>
+              <ellipse cx="130" cy="408" rx="96" ry="7" fill="#000" opacity=".55"/>
+              <g class="mist" filter="url(#f-mist)" fill="#e6c9a3">
+                <circle cx="130" cy="100" r="14" style="--k:0;--dx:-28px"/>
+                <circle cx="130" cy="100" r="12" style="--k:1;--dx:20px"/>
+                <circle cx="130" cy="100" r="16" style="--k:2;--dx:-6px"/>
+                <circle cx="130" cy="100" r="10" style="--k:3;--dx:32px"/>
+              </g>
+              <rect x="34" y="138" width="192" height="260" rx="30" fill="url(#g-glass)" stroke="rgba(239,233,224,.3)" stroke-width="1.5"/>
+              <g clip-path="url(#bottle-clip)">
+                <rect id="liq-base" x="40" y="301" width="180" height="87" fill="url(#g-base)"/>
+                <rect id="liq-heart" x="40" y="230.2" width="180" height="71.8" fill="url(#g-heart)"/>
+                <rect id="liq-top" x="40" y="183" width="180" height="48.2" fill="url(#g-top)"/>
+                <rect id="liq-surface" x="40" y="182" width="180" height="2" fill="#fff3dc" opacity=".55"/>
+              </g>
+              <rect x="46" y="150" width="168" height="236" rx="20" fill="none" stroke="rgba(239,233,224,.1)"/>
+              <rect x="54" y="162" width="9" height="206" rx="4.5" fill="#fff" opacity=".1"/>
+              <rect x="200" y="172" width="3" height="178" rx="1.5" fill="#fff" opacity=".07"/>
+              <rect x="92" y="262" width="76" height="52" fill="none" stroke="url(#g-gold)" stroke-width=".8" opacity=".75"/>
+              <path d="M130 278l7 10-7 10-7-10z" fill="none" stroke="url(#g-gold)" stroke-width=".8"/>
+              <rect x="108" y="118" width="44" height="24" fill="url(#g-glass)" stroke="rgba(239,233,224,.3)" stroke-width="1.2"/>
+              <rect x="100" y="106" width="60" height="14" rx="2" fill="url(#g-gold)"/>
+              <g class="bottle__cap" id="bottle-cap">
+                <rect x="94" y="30" width="72" height="78" rx="5" fill="url(#g-cap)" stroke="url(#g-gold)" stroke-width="1"/>
+                <rect x="94" y="94" width="72" height="6" fill="url(#g-gold)" opacity=".85"/>
+                <rect x="102" y="38" width="5" height="50" rx="2.5" fill="#fff" opacity=".09"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="pyramid__progress" aria-hidden="true"><span></span></div>
       </div>
     </div>
   </section>
@@ -960,6 +1339,192 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
     </div>
   </div>
 
+
+  <!-- ================= Каталог ================= -->
+  <section class="section catalog" id="catalog">
+    <div class="wrap">
+      <div class="catalog__head">
+        <div>
+          <p class="eyebrow" data-reveal>Каталог</p>
+          <h2 class="h2" data-reveal style="--d:.05s">Ароматы</h2>
+        </div>
+        <div class="filters" role="group" aria-label="Семейство ароматов" data-reveal style="--d:.1s">
+          <button class="chip" type="button" aria-pressed="true" data-f="all">Все</button>
+          <button class="chip" type="button" aria-pressed="false" data-f="oriental">Восточные</button>
+          <button class="chip" type="button" aria-pressed="false" data-f="woody">Древесные</button>
+          <button class="chip" type="button" aria-pressed="false" data-f="floral">Цветочные</button>
+          <button class="chip" type="button" aria-pressed="false" data-f="fresh">Свежие</button>
+        </div>
+      </div>
+      <ul class="cards">
+          <li class="card" data-family="oriental" data-reveal style="--d:0.00s;view-transition-name:card-0">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Флакон с янтарным маслом и пипеткой"
+                src="https://images.unsplash.com/photo-1709662217659-c7966220219f?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1709662217659-c7966220219f?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1709662217659-c7966220219f?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Восточный</p>
+              <h3 class="card__title">Уд и роза</h3>
+              <p class="card__notes">Уд · роза · шафран · амбра</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Уд и роза». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Уд и роза">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="oriental" data-reveal style="--d:0.08s;view-transition-name:card-1">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Круглый флакон духов на шёлке"
+                src="https://images.unsplash.com/photo-1733660227163-01bc46e0d7d7?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1733660227163-01bc46e0d7d7?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1733660227163-01bc46e0d7d7?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Восточный</p>
+              <h3 class="card__title">Шафран и амбра</h3>
+              <p class="card__notes">Шафран · амбра · ваниль · бензоин</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Шафран и амбра». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Шафран и амбра">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="woody" data-reveal style="--d:0.16s;view-transition-name:card-2">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Пипетка над флаконом с янтарной жидкостью"
+                src="https://images.unsplash.com/photo-1709660274780-d089327578d0?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1709660274780-d089327578d0?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1709660274780-d089327578d0?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Древесный</p>
+              <h3 class="card__title">Сандал и ваниль</h3>
+              <p class="card__notes">Сандал · ваниль · кедр · мускус</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Сандал и ваниль». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Сандал и ваниль">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="woody" data-reveal style="--d:0.24s;view-transition-name:card-3">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Тёмный флакон духов на синем шёлке"
+                src="https://images.unsplash.com/photo-1705936118918-870095881e61?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1705936118918-870095881e61?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1705936118918-870095881e61?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Древесный</p>
+              <h3 class="card__title">Пачули и кожа</h3>
+              <p class="card__notes">Пачули · кожа · ветивер · уд</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Пачули и кожа». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Пачули и кожа">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="floral" data-reveal style="--d:0.00s;view-transition-name:card-4">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Красный стеклянный флакон"
+                src="https://images.unsplash.com/photo-1720423738890-37689a6f6b95?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1720423738890-37689a6f6b95?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1720423738890-37689a6f6b95?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Цветочный</p>
+              <h3 class="card__title">Роза и пион</h3>
+              <p class="card__notes">Роза · пион · личи · мускус</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Роза и пион». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Роза и пион">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="floral" data-reveal style="--d:0.08s;view-transition-name:card-5">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Флакон масляных духов с роликом"
+                src="https://images.unsplash.com/photo-1646149757906-e6e9e9a7c77f?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1646149757906-e6e9e9a7c77f?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1646149757906-e6e9e9a7c77f?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Цветочный</p>
+              <h3 class="card__title">Жасмин</h3>
+              <p class="card__notes">Жасмин · флёрдоранж · белые цветы</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Жасмин». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Жасмин">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="fresh" data-reveal style="--d:0.16s;view-transition-name:card-6">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Флакон духов на тёмном фоне"
+                src="https://images.unsplash.com/photo-1611842834129-f1f92390f9e7?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1611842834129-f1f92390f9e7?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1611842834129-f1f92390f9e7?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Свежий</p>
+              <h3 class="card__title">Белый мускус</h3>
+              <p class="card__notes">Белый мускус · ландыш · бергамот</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Белый мускус». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Белый мускус">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+          <li class="card" data-family="fresh" data-reveal style="--d:0.24s;view-transition-name:card-7">
+            <figure class="card__media">
+              <img loading="lazy" width="600" height="750" alt="Пипетка над прозрачным флаконом"
+                src="https://images.unsplash.com/photo-1709662369957-0cbf9f8452fc?auto=format&fit=crop&w=600&h=750&q=70"
+                srcset="https://images.unsplash.com/photo-1709662369957-0cbf9f8452fc?auto=format&fit=crop&w=400&h=500&q=70 400w, https://images.unsplash.com/photo-1709662369957-0cbf9f8452fc?auto=format&fit=crop&w=600&h=750&q=70 600w"
+                sizes="(max-width: 860px) 50vw, 25vw">
+            </figure>
+            <div class="card__body">
+              <p class="card__family">Свежий</p>
+              <h3 class="card__title">Бергамот и нероли</h3>
+              <p class="card__notes">Бергамот · нероли · зелёный чай</p>
+              <a class="card__btn" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Интересует аромат «Бергамот и нероли». Подскажете цену и наличие?" target="_blank" rel="noopener" aria-label="Узнать цену: Бергамот и нероли">Узнать цену <svg class="ic ic-arrow-up-right" aria-hidden="true" focusable="false"><use href="#i-arrow-up-right"/></svg></a>
+            </div>
+          </li>
+      </ul>
+      <p class="catalog__note" data-reveal>Наличие, объёмы и цены уточняйте в WhatsApp: подскажу, что есть сейчас.</p>
+    </div>
+  </section>
+
+  <!-- ================= Масляные или спиртовые ================= -->
+  <section class="section compare" id="compare">
+    <div class="wrap compare__grid">
+      <figure class="compare__media" data-reveal>
+        <img loading="lazy" width="900" height="1125" alt="Масляные духи наносят на запястье"
+          src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=900&h=1125&q=70">
+      </figure>
+      <div>
+        <p class="eyebrow" data-reveal>В чём разница</p>
+        <h2 class="h2" data-reveal style="--d:.05s">Масляные или спиртовые</h2>
+        <table class="cmp" role="table">
+          <thead role="rowgroup">
+            <tr role="row"><th role="columnheader" scope="col"><span class="sr-only">Параметр</span></th><th class="is-oil" role="columnheader" scope="col">Масляные</th><th role="columnheader" scope="col">Спиртовые</th></tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr role="row" style="--i:0"><th role="rowheader" scope="row">Основа</th><td class="is-oil" role="cell">Масло, без спирта</td><td role="cell">Спирт</td></tr>
+            <tr role="row" style="--i:1"><th role="rowheader" scope="row">Звучание</th><td class="is-oil" role="cell">Мягко, близко к коже</td><td role="cell">Ярко, с заметным шлейфом</td></tr>
+            <tr role="row" style="--i:2"><th role="rowheader" scope="row">На коже</th><td class="is-oil" role="cell">Раскрываются постепенно и долго держатся</td><td role="cell">Сильный старт, верхние ноты уходят быстрее</td></tr>
+            <tr role="row" style="--i:3"><th role="rowheader" scope="row">Нанесение</th><td class="is-oil" role="cell">Пара капель или ролик на запястья</td><td role="cell">Распыление</td></tr>
+            <tr role="row" style="--i:4"><th role="rowheader" scope="row">Когда</th><td class="is-oil" role="cell">Каждый день, работа, близкие встречи</td><td role="cell">Вечер, выход, открытые пространства</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Как заказать ================= -->
+  <section class="section order" id="order">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Как заказать</p>
+      <h2 class="h2" data-reveal style="--d:.05s">Три шага до аромата</h2>
+      <ol class="steps">
+        <li class="step" data-reveal style="--d:.1s">
+          <span class="step__num">1</span>
+          <h3>Напишите в WhatsApp</h3>
+          <p>Расскажите, какие запахи любите, или выберите аромат в каталоге.</p>
+        </li>
+        <li class="step" data-reveal style="--d:.25s">
+          <span class="step__num">2</span>
+          <h3>Подберём вместе</h3>
+          <p>Расскажу о нотах и стойкости, предложу несколько вариантов под ваш вкус и случай.</p>
+        </li>
+        <li class="step" data-reveal style="--d:.4s">
+          <span class="step__num">3</span>
+          <h3>Получите аромат</h3>
+          <p>Как удобнее получить заказ и оплатить, договоримся в переписке.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <!-- ================= Контакты ================= -->
   <section class="section contacts" id="contacts">
     <div class="wrap">
@@ -1033,6 +1598,8 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
 </a>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<!-- Lenis 1.3.26 · MIT License · darkroom.engineering -->
+<script>(function(){var e=`1.3.26`;function t(e,t,n){return Math.max(e,Math.min(t,n))}function n(e,t,n){return(1-n)*e+n*t}function r(e,t,r,i){return n(e,t,1-Math.exp(-r*i))}function i(e,t){return(e%t+t)%t}var a=class{isRunning=!1;value=0;from=0;to=0;currentTime=0;lerp;duration;easing;onUpdate;advance(e){if(!this.isRunning)return;let n=!1;if(this.duration&&this.easing){this.currentTime+=e;let r=t(0,this.currentTime/this.duration,1);n=r>=1;let i=n?1:this.easing(r);this.value=this.from+(this.to-this.from)*i}else this.lerp?(this.value=r(this.value,this.to,this.lerp*60,e),Math.round(this.value)===Math.round(this.to)&&(this.value=this.to,n=!0)):(this.value=this.to,n=!0);n&&this.stop(),this.onUpdate?.(this.value,n)}stop(){this.isRunning=!1}fromTo(e,t,{lerp:n,duration:r,easing:i,onStart:a,onUpdate:o}){this.from=this.value=e,this.to=t,this.lerp=n,this.duration=r,this.easing=i,this.currentTime=0,this.isRunning=!0,a?.(),this.onUpdate=o}};function o(e,t){let n;return function(...r){clearTimeout(n),n=setTimeout(()=>{n=void 0,e.apply(this,r)},t)}}var s=class{width=0;height=0;scrollHeight=0;scrollWidth=0;debouncedResize;wrapperResizeObserver;contentResizeObserver;constructor(e,t,{autoResize:n=!0,debounce:r=250}={}){this.wrapper=e,this.content=t,n&&(this.debouncedResize=o(this.resize,r),this.wrapper instanceof Window?window.addEventListener(`resize`,this.debouncedResize):(this.wrapperResizeObserver=new ResizeObserver(this.debouncedResize),this.wrapperResizeObserver.observe(this.wrapper)),this.contentResizeObserver=new ResizeObserver(this.debouncedResize),this.contentResizeObserver.observe(this.content)),this.resize()}destroy(){this.wrapperResizeObserver?.disconnect(),this.contentResizeObserver?.disconnect(),this.wrapper===window&&this.debouncedResize&&window.removeEventListener(`resize`,this.debouncedResize)}resize=()=>{this.onWrapperResize(),this.onContentResize()};onWrapperResize=()=>{this.wrapper instanceof Window?(this.width=window.innerWidth,this.height=window.innerHeight):(this.width=this.wrapper.clientWidth,this.height=this.wrapper.clientHeight)};onContentResize=()=>{this.wrapper instanceof Window?(this.scrollHeight=this.content.scrollHeight,this.scrollWidth=this.content.scrollWidth):(this.scrollHeight=this.wrapper.scrollHeight,this.scrollWidth=this.wrapper.scrollWidth)};get limit(){return{x:this.scrollWidth-this.width,y:this.scrollHeight-this.height}}},c=class{events={};emit(e,...t){let n=this.events[e]||[];for(let e=0,r=n.length;e<r;e++)n[e]?.(...t)}on(e,t){return this.events[e]?this.events[e].push(t):this.events[e]=[t],()=>{this.events[e]=this.events[e]?.filter(e=>t!==e)}}off(e,t){this.events[e]=this.events[e]?.filter(e=>t!==e)}destroy(){this.events={}}};let l={passive:!1};function u(e,t){return e===1?16.666666666666668:e===2?t:1}var d=class{touchStart={x:0,y:0};lastDelta={x:0,y:0};window={width:0,height:0};emitter=new c;constructor(e,t={wheelMultiplier:1,touchMultiplier:1}){this.element=e,this.options=t,window.addEventListener(`resize`,this.onWindowResize),this.onWindowResize(),this.element.addEventListener(`wheel`,this.onWheel,l),this.element.addEventListener(`touchstart`,this.onTouchStart,l),this.element.addEventListener(`touchmove`,this.onTouchMove,l),this.element.addEventListener(`touchend`,this.onTouchEnd,l)}on(e,t){return this.emitter.on(e,t)}destroy(){this.emitter.destroy(),window.removeEventListener(`resize`,this.onWindowResize),this.element.removeEventListener(`wheel`,this.onWheel,l),this.element.removeEventListener(`touchstart`,this.onTouchStart,l),this.element.removeEventListener(`touchmove`,this.onTouchMove,l),this.element.removeEventListener(`touchend`,this.onTouchEnd,l)}onTouchStart=e=>{let{clientX:t,clientY:n}=e.targetTouches?e.targetTouches[0]:e;this.touchStart.x=t,this.touchStart.y=n,this.lastDelta={x:0,y:0},this.emitter.emit(`scroll`,{deltaX:0,deltaY:0,event:e})};onTouchMove=e=>{let{clientX:t,clientY:n}=e.targetTouches?e.targetTouches[0]:e,r=-(t-this.touchStart.x)*this.options.touchMultiplier,i=-(n-this.touchStart.y)*this.options.touchMultiplier;this.touchStart.x=t,this.touchStart.y=n,this.lastDelta={x:r,y:i},this.emitter.emit(`scroll`,{deltaX:r,deltaY:i,event:e})};onTouchEnd=e=>{this.emitter.emit(`scroll`,{deltaX:this.lastDelta.x,deltaY:this.lastDelta.y,event:e})};onWheel=e=>{let{deltaX:t,deltaY:n,deltaMode:r}=e,i=u(r,this.window.width),a=u(r,this.window.height);t*=i,n*=a,t*=this.options.wheelMultiplier,n*=this.options.wheelMultiplier,this.emitter.emit(`scroll`,{deltaX:t,deltaY:n,event:e})};onWindowResize=()=>{this.window={width:window.innerWidth,height:window.innerHeight}}};let f=e=>Math.min(1,1.001-2**(-10*e));var p=class{_isScrolling=!1;_isStopped=!1;_isLocked=!1;_preventNextNativeScrollEvent=!1;_resetVelocityTimeout=null;_rafId=null;_isDraggingSelection=!1;reducedMotionMediaQuery=window.matchMedia(`(prefers-reduced-motion: reduce)`);isTouching;isIos;time=0;userData={};lastVelocity=0;velocity=0;direction=0;options;targetScroll;animatedScroll;animate=new a;emitter=new c;dimensions;virtualScroll;constructor({wrapper:t=window,content:n=document.documentElement,eventsTarget:r=t,smoothWheel:i=!0,syncTouch:a=!1,syncTouchLerp:o=.075,touchInertiaExponent:c=1.7,duration:l,easing:u,lerp:p=.1,infinite:m=!1,orientation:h=`vertical`,gestureOrientation:g=h===`horizontal`?`both`:`vertical`,touchMultiplier:_=1,wheelMultiplier:v=1,autoResize:y=!0,prevent:b,virtualScroll:x,overscroll:S=!0,autoRaf:C=!1,anchors:w=!1,autoToggle:T=!1,allowNestedScroll:E=!1,__experimental__naiveDimensions:D=!1,naiveDimensions:O=D,stopInertiaOnNavigate:k=!1,respectReducedMotion:A=!0}={}){window.lenisVersion=e,window.lenis||(window.lenis={}),window.lenis.version=e,h===`horizontal`&&(window.lenis.horizontal=!0),a===!0&&(window.lenis.touch=!0),this.isIos=/(iPad|iPhone|iPod)/g.test(navigator.userAgent),(!t||t===document.documentElement)&&(t=window),typeof l==`number`&&typeof u!=`function`?u=f:typeof u==`function`&&typeof l!=`number`&&(l=1),this.options={wrapper:t,content:n,eventsTarget:r,smoothWheel:i,syncTouch:a,syncTouchLerp:o,touchInertiaExponent:c,duration:l,easing:u,lerp:p,infinite:m,gestureOrientation:g,orientation:h,touchMultiplier:_,wheelMultiplier:v,autoResize:y,prevent:b,virtualScroll:x,overscroll:S,autoRaf:C,anchors:w,autoToggle:T,allowNestedScroll:E,naiveDimensions:O,stopInertiaOnNavigate:k,respectReducedMotion:A},this.dimensions=new s(t,n,{autoResize:y}),this.updateClassName(),this.targetScroll=this.animatedScroll=this.actualScroll,this.options.wrapper.addEventListener(`scroll`,this.onNativeScroll),this.options.wrapper.addEventListener(`scrollend`,this.onScrollEnd,{capture:!0}),(this.options.anchors||this.options.stopInertiaOnNavigate)&&this.options.wrapper.addEventListener(`click`,this.onClick),this.options.wrapper.addEventListener(`pointerdown`,this.onPointerDown),this.virtualScroll=new d(r,{touchMultiplier:_,wheelMultiplier:v}),this.virtualScroll.on(`scroll`,this.onVirtualScroll),this.options.autoToggle&&(this.checkOverflow(),this.rootElement.addEventListener(`transitionend`,this.onTransitionEnd)),this.options.autoRaf&&(this._rafId=requestAnimationFrame(this.raf))}destroy(){this.emitter.destroy(),this.options.wrapper.removeEventListener(`scroll`,this.onNativeScroll),this.options.wrapper.removeEventListener(`scrollend`,this.onScrollEnd,{capture:!0}),this.options.wrapper.removeEventListener(`pointerdown`,this.onPointerDown),(this.options.anchors||this.options.stopInertiaOnNavigate)&&this.options.wrapper.removeEventListener(`click`,this.onClick),this.virtualScroll.destroy(),this.dimensions.destroy(),this.cleanUpClassName(),this._rafId&&cancelAnimationFrame(this._rafId)}on(e,t){return this.emitter.on(e,t)}off(e,t){return this.emitter.off(e,t)}onScrollEnd=e=>{e instanceof CustomEvent||(this.isScrolling===`smooth`||this.isScrolling===!1)&&e.stopPropagation()};dispatchScrollendEvent=()=>{this.options.wrapper.dispatchEvent(new CustomEvent(`scrollend`,{bubbles:this.options.wrapper===window,detail:{lenisScrollEnd:!0}}))};get overflow(){let e=this.isHorizontal?`overflow-x`:`overflow-y`;return getComputedStyle(this.rootElement)[e]}checkOverflow(){[`hidden`,`clip`].includes(this.overflow)?this.internalStop():this.internalStart()}onTransitionEnd=e=>{e.propertyName?.includes(`overflow`)&&e.target===this.rootElement&&this.checkOverflow()};setScroll(e){this.isHorizontal?this.options.wrapper.scrollTo({left:e,behavior:`instant`}):this.options.wrapper.scrollTo({top:e,behavior:`instant`})}onClick=e=>{let t=e.composedPath().filter(e=>e instanceof HTMLAnchorElement&&e.href).map(e=>new URL(e.href)),n=new URL(window.location.href);if(this.options.anchors){let e=t.find(e=>n.host===e.host&&n.pathname===e.pathname&&e.hash);if(e){let t=typeof this.options.anchors==`object`&&this.options.anchors?this.options.anchors:void 0,n=decodeURIComponent(e.hash);this.scrollTo(n,t);return}}if(this.options.stopInertiaOnNavigate&&t.some(e=>n.host===e.host&&n.pathname!==e.pathname)){this.reset();return}};onPointerDown=e=>{e.button===1&&this.reset()};isTouchOnSelectionHandle(e){let t=window.getSelection();if(!t||t.isCollapsed||t.rangeCount===0)return!1;let n=e.targetTouches[0]??e.changedTouches[0];if(!n)return!1;let r=t.getRangeAt(0).getClientRects();if(r.length===0)return!1;let i=r[0],a=r[r.length-1],o=Math.hypot(n.clientX-i.left,n.clientY-i.top)<=40,s=Math.hypot(n.clientX-a.right,n.clientY-a.bottom)<=40;return o||s}onVirtualScroll=e=>{if(typeof this.options.virtualScroll==`function`&&this.options.virtualScroll(e)===!1)return;let{deltaX:t,deltaY:n,event:r}=e;if(this.emitter.emit(`virtual-scroll`,{deltaX:t,deltaY:n,event:r}),r.ctrlKey||r.lenisStopPropagation)return;let i=r.type.includes(`touch`),a=r.type.includes(`wheel`);if(i&&this.isIos&&(r.type===`touchstart`&&(this._isDraggingSelection=this.isTouchOnSelectionHandle(r)),this._isDraggingSelection)){r.type===`touchend`&&(this._isDraggingSelection=!1);return}this.isTouching=r.type===`touchstart`||r.type===`touchmove`;let o=t===0&&n===0;if(this.options.syncTouch&&i&&r.type===`touchstart`&&o&&!this.isStopped&&!this.isLocked){this.reset();return}let s=this.options.gestureOrientation===`vertical`&&n===0||this.options.gestureOrientation===`horizontal`&&t===0;if(o||s)return;let c=r.composedPath();c=c.slice(0,c.indexOf(this.rootElement));let l=this.options.prevent,u=Math.abs(t)>=Math.abs(n)?`horizontal`:`vertical`;if(c.find(e=>e instanceof HTMLElement&&(typeof l==`function`&&l?.(e)||e.hasAttribute?.(`data-lenis-prevent`)||u===`vertical`&&e.hasAttribute?.(`data-lenis-prevent-vertical`)||u===`horizontal`&&e.hasAttribute?.(`data-lenis-prevent-horizontal`)||i&&e.hasAttribute?.(`data-lenis-prevent-touch`)||a&&e.hasAttribute?.(`data-lenis-prevent-wheel`)||this.options.allowNestedScroll&&this.hasNestedScroll(e,{deltaX:t,deltaY:n}))))return;if(this.isStopped||this.isLocked){r.cancelable&&r.preventDefault();return}if(!(this.options.syncTouch&&i||this.options.smoothWheel&&a)){this.isScrolling=`native`,this.animate.stop(),r.lenisStopPropagation=!0;return}let d=n;this.options.gestureOrientation===`both`?d=Math.abs(n)>Math.abs(t)?n:t:this.options.gestureOrientation===`horizontal`&&(d=t),(!this.options.overscroll||this.options.infinite||this.options.wrapper!==window&&this.limit>0&&(this.animatedScroll>0&&this.animatedScroll<this.limit||this.animatedScroll===0&&n>0||this.animatedScroll===this.limit&&n<0))&&(r.lenisStopPropagation=!0),r.cancelable&&r.preventDefault();let f=i&&this.options.syncTouch,p=i&&r.type===`touchend`;p&&(d=Math.sign(d)*Math.abs(this.velocity)**this.options.touchInertiaExponent),this.scrollTo(this.targetScroll+d,{programmatic:!1,...f?{lerp:p?this.options.syncTouchLerp:1}:{lerp:this.options.lerp,duration:this.options.duration,easing:this.options.easing}})};resize(){this.dimensions.resize(),this.animatedScroll=this.targetScroll=this.actualScroll,this.emit()}emit(){this.emitter.emit(`scroll`,this)}onNativeScroll=()=>{if(this._resetVelocityTimeout!==null&&(clearTimeout(this._resetVelocityTimeout),this._resetVelocityTimeout=null),this._preventNextNativeScrollEvent){this._preventNextNativeScrollEvent=!1;return}if(this.isScrolling===!1||this.isScrolling===`native`){let e=this.animatedScroll;this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity,this.velocity=this.animatedScroll-e,this.direction=Math.sign(this.animatedScroll-e),this.isStopped||(this.isScrolling=`native`),this.emit(),this.velocity!==0&&(this._resetVelocityTimeout=setTimeout(()=>{this.lastVelocity=this.velocity,this.velocity=0,this.isScrolling=!1,this.emit()},400))}};reset(){this.isLocked=!1,this.isScrolling=!1,this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity=0,this.animate.stop()}start(){if(this.isStopped){if(this.options.autoToggle){this.rootElement.style.removeProperty(`overflow`);return}this.internalStart()}}internalStart(){this.isStopped&&(this.reset(),this.isStopped=!1,this.emit())}stop(){if(!this.isStopped){if(this.options.autoToggle){this.rootElement.style.setProperty(`overflow`,`clip`);return}this.internalStop()}}internalStop(){this.isStopped||(this.reset(),this.isStopped=!0,this.emit())}raf=e=>{let t=e-(this.time||e);this.time=e,this.animate.advance(t*.001),this.options.autoRaf&&(this._rafId=requestAnimationFrame(this.raf))};scrollTo(e,{offset:n=0,immediate:r=!1,lock:i=!1,programmatic:a=!0,lerp:o=a?this.options.lerp:void 0,duration:s=a?this.options.duration:void 0,easing:c=a?this.options.easing:void 0,onStart:l,onComplete:u,force:d=!1,userData:p}={}){if(this.prefersReducedMotion&&(a?r=!0:(o=1,s=void 0,c=void 0)),(this.isStopped||this.isLocked)&&!d)return;let m=e,h=n;if(typeof m==`string`&&[`top`,`left`,`start`,`#`].includes(m))m=0;else if(typeof m==`string`&&[`bottom`,`right`,`end`].includes(m))m=this.limit;else{let e=null;if(typeof m==`string`?(e=m.startsWith(`#`)?document.getElementById(m.slice(1)):document.querySelector(m),e||(m===`#top`?m=0:console.warn(`Lenis: Target not found`,m))):m instanceof HTMLElement&&m?.nodeType&&(e=m),e){if(this.options.wrapper!==window){let e=this.rootElement.getBoundingClientRect();h-=this.isHorizontal?e.left:e.top}let t=e.getBoundingClientRect(),n=getComputedStyle(e),r=this.isHorizontal?Number.parseFloat(n.scrollMarginLeft):Number.parseFloat(n.scrollMarginTop),i=getComputedStyle(this.rootElement),a=this.isHorizontal?Number.parseFloat(i.scrollPaddingLeft):Number.parseFloat(i.scrollPaddingTop);m=(this.isHorizontal?t.left:t.top)+this.animatedScroll-(Number.isNaN(r)?0:r)-(Number.isNaN(a)?0:a)}}if(typeof m==`number`){if(m+=h,this.options.infinite){if(a){this.targetScroll=this.animatedScroll=this.scroll;let e=m-this.animatedScroll;e>this.limit/2?m-=this.limit:e<-this.limit/2&&(m+=this.limit)}}else m=t(0,m,this.limit);if(m===this.targetScroll){l?.(this),u?.(this);return}if(this.userData=p??{},r){this.animatedScroll=this.targetScroll=m,this.setScroll(this.scroll),this.reset(),this.preventNextNativeScrollEvent(),this.emit(),u?.(this),this.userData={},requestAnimationFrame(()=>{this.dispatchScrollendEvent()});return}a||(this.targetScroll=m),typeof s==`number`&&typeof c!=`function`?c=f:typeof c==`function`&&typeof s!=`number`&&(s=1),this.animate.fromTo(this.animatedScroll,m,{duration:s,easing:c,lerp:o,onStart:()=>{i&&(this.isLocked=!0),this.isScrolling=`smooth`,l?.(this)},onUpdate:(e,t)=>{this.isScrolling=`smooth`,this.lastVelocity=this.velocity,this.velocity=e-this.animatedScroll,this.direction=Math.sign(this.velocity),this.animatedScroll=e,this.setScroll(this.scroll),a&&(this.targetScroll=e),t||this.emit(),t&&(this.reset(),this.emit(),u?.(this),this.userData={},requestAnimationFrame(()=>{this.dispatchScrollendEvent()}),this.preventNextNativeScrollEvent())}})}}preventNextNativeScrollEvent(){this._preventNextNativeScrollEvent=!0,requestAnimationFrame(()=>{this._preventNextNativeScrollEvent=!1})}hasNestedScroll(e,{deltaX:t,deltaY:n}){let r=Date.now();e._lenis||={};let i=e._lenis,a,o,s,c,l,u,d,f,p,m;if(r-(i.time??0)>2e3){i.time=Date.now();let t=window.getComputedStyle(e);if(i.computedStyle=t,a=[`auto`,`overlay`,`scroll`].includes(t.overflowX),o=[`auto`,`overlay`,`scroll`].includes(t.overflowY),l=[`auto`].includes(t.overscrollBehaviorX),u=[`auto`].includes(t.overscrollBehaviorY),i.hasOverflowX=a,i.hasOverflowY=o,!(a||o))return!1;d=e.scrollWidth,f=e.scrollHeight,p=e.clientWidth,m=e.clientHeight,s=d>p,c=f>m,i.isScrollableX=s,i.isScrollableY=c,i.scrollWidth=d,i.scrollHeight=f,i.clientWidth=p,i.clientHeight=m,i.hasOverscrollBehaviorX=l,i.hasOverscrollBehaviorY=u}else s=i.isScrollableX,c=i.isScrollableY,a=i.hasOverflowX,o=i.hasOverflowY,d=i.scrollWidth,f=i.scrollHeight,p=i.clientWidth,m=i.clientHeight,l=i.hasOverscrollBehaviorX,u=i.hasOverscrollBehaviorY;if(!(a&&s||o&&c))return!1;let h=Math.abs(t)>=Math.abs(n)?`horizontal`:`vertical`,g,_,v,y,b,x;if(h===`horizontal`)g=Math.round(e.scrollLeft),_=d-p,v=t,y=a,b=s,x=l;else if(h===`vertical`)g=Math.round(e.scrollTop),_=f-m,v=n,y=o,b=c,x=u;else return!1;return!x&&(g>=_||g<=0)?!0:(v>0?g<_:g>0)&&y&&b}get rootElement(){return this.options.wrapper===window?document.documentElement:this.options.wrapper}get limit(){return this.options.naiveDimensions?this.isHorizontal?this.rootElement.scrollWidth-this.rootElement.clientWidth:this.rootElement.scrollHeight-this.rootElement.clientHeight:this.dimensions.limit[this.isHorizontal?`x`:`y`]}get isHorizontal(){return this.options.orientation===`horizontal`}get actualScroll(){let e=this.options.wrapper;return this.isHorizontal?e.scrollX??e.scrollLeft:e.scrollY??e.scrollTop}get scroll(){return this.options.infinite?i(this.animatedScroll,this.limit):this.animatedScroll}get progress(){return this.limit===0?1:this.scroll/this.limit}get isScrolling(){return this._isScrolling}set isScrolling(e){this._isScrolling!==e&&(this._isScrolling=e,this.updateClassName())}get isStopped(){return this._isStopped}set isStopped(e){this._isStopped!==e&&(this._isStopped=e,this.updateClassName())}get isLocked(){return this._isLocked}set isLocked(e){this._isLocked!==e&&(this._isLocked=e,this.updateClassName())}get isSmooth(){return this.isScrolling===`smooth`}get prefersReducedMotion(){return this.options.respectReducedMotion&&this.reducedMotionMediaQuery.matches}get className(){let e=`lenis`;return this.options.autoToggle&&(e+=` lenis-autoToggle`),this.isStopped&&(e+=` lenis-stopped`),this.isLocked&&(e+=` lenis-locked`),this.isScrolling&&(e+=` lenis-scrolling`),this.isScrolling===`smooth`&&(e+=` lenis-smooth`),e}updateClassName(){this.cleanUpClassName(),this.className.split(` `).forEach(e=>{this.rootElement.classList.add(e)})}cleanUpClassName(){for(let e of Array.from(this.rootElement.classList))(e===`lenis`||e.startsWith(`lenis-`))&&this.rootElement.classList.remove(e)}};globalThis.Lenis=p,globalThis.Lenis.prototype=p.prototype})();</script>
 <script>
 (() => {
   'use strict';
@@ -1044,6 +1611,7 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
   const waHref = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  let lenis = null;
 
   $('#year').textContent = new Date().getFullYear();
 
@@ -1064,6 +1632,7 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
     menuBtn.setAttribute('aria-expanded', String(open));
     menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
     document.body.classList.toggle('no-scroll', open);
+    if (lenis) open ? lenis.stop() : lenis.start();
   };
   menuBtn.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
   $$('a', menu).forEach((a) => a.addEventListener('click', () => setMenu(false)));
@@ -1081,6 +1650,7 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
   $$('[data-reveal]').forEach((el) => revealIO.observe(el));
+  [$('.cmp'), $('.steps')].forEach((el) => el && revealIO.observe(el));
 
   // «Обо мне»: текст разбивается на слова, которые загораются при прокрутке
   const stmt = $('.statement');
@@ -1122,6 +1692,92 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
     $('.svc-list').addEventListener('pointerleave', () => { if (openIdx >= 0) showPic(openIdx); });
   }
   setOpen(0);
+
+  // Каталог: фильтр по семействам
+  const cards = $$('.card');
+  const filters = $('.filters');
+  filters.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip || chip.getAttribute('aria-pressed') === 'true') return;
+    $$('.chip', filters).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    const f = chip.dataset.f;
+    const apply = () => cards.forEach((c) => {
+      c.hidden = !(f === 'all' || c.dataset.family === f);
+      if (!c.hidden) c.classList.add('in');
+    });
+    if (reduce) { apply(); return; }
+    if (document.startViewTransition) { document.startViewTransition(apply); return; }
+    apply();
+    let n = 0;
+    cards.forEach((c) => {
+      c.classList.remove('is-pop');
+      if (c.hidden) return;
+      c.style.setProperty('--n', n++);
+      void c.offsetWidth;
+      c.classList.add('is-pop');
+    });
+  });
+  if (finePointer) {
+    cards.forEach((c) => c.addEventListener('pointermove', (e) => {
+      const r = c.getBoundingClientRect();
+      c.style.setProperty('--x', `${e.clientX - r.left}px`);
+      c.style.setProperty('--y', `${e.clientY - r.top}px`);
+    }));
+  }
+
+  // Пирамида нот: флакон наполняется слоями по мере прокрутки
+  const pyrTrack = $('.pyramid__track');
+  const pyrVisual = $('.pyramid__visual');
+  const bottle = $('.bottle');
+  const layers = ['#liq-base', '#liq-heart', '#liq-top'].map((id) => $(id));
+  const surface = $('#liq-surface');
+  const cap = $('#bottle-cap');
+  const tiers = $$('.tier');
+  const pyrBar = $('.pyramid__progress span');
+  const BOTTOM = 386;
+  const INNER_H = 236;
+  const SHARE = [0.36, 0.3, 0.2];
+  const seg = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
+  const smooth = (t) => t * t * (3 - 2 * t);
+  const renderBottle = (p) => {
+    const fill = [seg(p, 0.06, 0.34), seg(p, 0.37, 0.6), seg(p, 0.63, 0.82)].map(smooth);
+    let y = BOTTOM;
+    let total = 0;
+    layers.forEach((el, i) => {
+      const h = fill[i] * SHARE[i] * INNER_H;
+      y -= h;
+      total += h;
+      el.setAttribute('y', y.toFixed(2));
+      el.setAttribute('height', (h > 0 ? h + 1.5 : 0).toFixed(2));
+    });
+    surface.setAttribute('y', (BOTTOM - total - 1).toFixed(2));
+    surface.style.opacity = total > 2 ? '' : '0';
+    const open = smooth(seg(p, 0.85, 0.95));
+    cap.style.transform = `translate(${(open * 12).toFixed(2)}px, ${(-open * 58).toFixed(2)}px) rotate(${(open * 10).toFixed(2)}deg)`;
+    bottle.classList.toggle('is-open', open > 0.9);
+    const active = p < 0.355 ? 0 : p < 0.615 ? 1 : 2;
+    tiers.forEach((t, i) => {
+      t.classList.toggle('is-active', i === active);
+      t.classList.toggle('is-done', i < active);
+    });
+    pyrBar.style.transform = `scaleX(${p.toFixed(4)})`;
+    pyrVisual.style.setProperty('--p', p.toFixed(3));
+  };
+  if (reduce) {
+    renderBottle(0.84);
+  } else {
+    let pyrRaf = 0;
+    const updatePyramid = () => {
+      pyrRaf = 0;
+      const r = pyrTrack.getBoundingClientRect();
+      const distance = r.height - innerHeight;
+      renderBottle(distance > 0 ? Math.min(1, Math.max(0, -r.top / distance)) : 1);
+    };
+    const queuePyramid = () => { if (!pyrRaf) pyrRaf = requestAnimationFrame(updatePyramid); };
+    addEventListener('scroll', queuePyramid, { passive: true });
+    addEventListener('resize', queuePyramid);
+    updatePyramid();
+  }
 
   // Подбор аромата: собираем сообщение для WhatsApp
   const MOOD = {
@@ -1218,6 +1874,129 @@ a.contact-row__value:hover, .contact-row__link:hover .contact-row__value { color
   $$('main section[id]').forEach((s) => navIO.observe(s));
 
   if (reduce) return;
+
+  // Плавная инерционная прокрутка (только мышь и тачпад)
+  if (finePointer && window.Lenis) {
+    lenis = new Lenis({ autoRaf: true, anchors: true, lerp: 0.1 });
+  }
+
+  // Свой курсор: точка и кольцо, которое догоняет её с задержкой
+  if (finePointer) {
+    const cur = document.createElement('div');
+    cur.className = 'cursor is-hidden';
+    cur.setAttribute('aria-hidden', 'true');
+    cur.innerHTML = '<span class="cursor__ring"></span><span class="cursor__dot"></span>';
+    document.body.append(cur);
+    document.documentElement.classList.add('has-cursor');
+    const ring = cur.firstElementChild;
+    const dot = cur.lastElementChild;
+    let mx = -100, my = -100, rx = -100, ry = -100, cRaf = 0;
+    const follow = () => {
+      rx += (mx - rx) * 0.2;
+      ry += (my - ry) * 0.2;
+      ring.style.transform = `translate3d(${rx.toFixed(1)}px, ${ry.toFixed(1)}px, 0)`;
+      cRaf = Math.abs(mx - rx) + Math.abs(my - ry) > 0.2 ? requestAnimationFrame(follow) : 0;
+    };
+    addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      mx = e.clientX;
+      my = e.clientY;
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+      cur.classList.remove('is-hidden');
+      if (!cRaf) cRaf = requestAnimationFrame(follow);
+    }, { passive: true });
+    document.addEventListener('mouseout', (e) => { if (!e.relatedTarget) cur.classList.add('is-hidden'); });
+    document.addEventListener('pointerover', (e) => {
+      cur.classList.toggle('is-link', !!e.target.closest('a, button, [role="button"]'));
+    });
+    addEventListener('pointerdown', () => cur.classList.add('is-down'));
+    addEventListener('pointerup', () => cur.classList.remove('is-down'));
+  }
+
+  // Дымка за курсором или пальцем, как шлейф аромата
+  const smoke = document.createElement('canvas');
+  smoke.className = 'smoke';
+  smoke.setAttribute('aria-hidden', 'true');
+  document.body.append(smoke);
+  const sctx = smoke.getContext('2d');
+  if (sctx) {
+    const sprite = document.createElement('canvas');
+    sprite.width = sprite.height = 128;
+    const g = sprite.getContext('2d');
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(232, 204, 168, 1)');
+    grad.addColorStop(0.4, 'rgba(212, 176, 138, .5)');
+    grad.addColorStop(1, 'rgba(212, 176, 138, 0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+
+    const MAX_PUFFS = finePointer ? 150 : 70;
+    let sw = 0, sh = 0, puffs = [], sRunning = false, lx = null, ly = null;
+    const sResize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      sw = innerWidth;
+      sh = innerHeight;
+      smoke.width = Math.round(sw * dpr);
+      smoke.height = Math.round(sh * dpr);
+      sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const sFrame = () => {
+      sctx.clearRect(0, 0, sw, sh);
+      for (let i = puffs.length - 1; i >= 0; i--) {
+        const p = puffs[i];
+        p.life++;
+        if (p.life >= p.ttl) { puffs.splice(i, 1); continue; }
+        const k = p.life / p.ttl;
+        p.ph += 0.035;
+        p.x += p.vx + Math.sin(p.ph) * 0.3;
+        p.y += p.vy;
+        p.vx *= 0.98;
+        p.vy = p.vy * 0.98 - 0.008;
+        p.r += p.grow;
+        sctx.globalAlpha = p.a * (k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85);
+        sctx.drawImage(sprite, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      }
+      sctx.globalAlpha = 1;
+      if (puffs.length) requestAnimationFrame(sFrame);
+      else { sRunning = false; sctx.clearRect(0, 0, sw, sh); }
+    };
+    const emit = (x, y) => {
+      if (lx === null) { lx = x; ly = y; return; }
+      const dx = x - lx;
+      const dy = y - ly;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 6) return;
+      const n = Math.min(3, Math.ceil(dist / 16));
+      for (let i = 1; i <= n; i++) {
+        puffs.push({
+          x: lx + (dx * i) / n,
+          y: ly + (dy * i) / n,
+          vx: dx * 0.01 + (Math.random() - 0.5) * 0.4,
+          vy: dy * 0.01 - 0.2 - Math.random() * 0.4,
+          r: 8 + Math.random() * 10,
+          grow: 0.4 + Math.random() * 0.5,
+          a: 0.06 + Math.random() * 0.07,
+          life: 0,
+          ttl: 80 + Math.random() * 70,
+          ph: Math.random() * 6.28,
+        });
+      }
+      if (puffs.length > MAX_PUFFS) puffs.splice(0, puffs.length - MAX_PUFFS);
+      lx = x;
+      ly = y;
+      if (!sRunning) { sRunning = true; requestAnimationFrame(sFrame); }
+    };
+    sResize();
+    addEventListener('resize', sResize);
+    if (finePointer) {
+      addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') emit(e.clientX, e.clientY); }, { passive: true });
+      document.addEventListener('mouseout', (e) => { if (!e.relatedTarget) lx = null; });
+    } else {
+      addEventListener('touchstart', (e) => { lx = e.touches[0].clientX; ly = e.touches[0].clientY; }, { passive: true });
+      addEventListener('touchmove', (e) => emit(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+      addEventListener('touchend', () => { lx = null; }, { passive: true });
+    }
+  }
 
   // Магнитные кнопки (только мышь)
   if (finePointer) {
