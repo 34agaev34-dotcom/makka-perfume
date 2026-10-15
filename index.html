@@ -37,7 +37,8 @@
    Токены
    Палитра: тёплый off-black + табачно-бежевый акцент (black & tan).
    Форма: всё интерактивное (кнопки, чипы) — капсулы; фото и панели — прямые углы.
-   Слои z-index: fab 40 · menu 45 · header 50 · toast 70 · grain 100
+   Поля ввода — тоже прямые углы.
+   Слои z-index: smoke 35 · fab 40 · menu 45 · header 50 · admin 85 · cursor 90 · toast 95 · grain 100
    ============================================================ */
 :root {
   --bg: #0c0b0a;
@@ -50,6 +51,7 @@
   --accent-ink: #17120d;
   --line: rgba(239, 233, 224, .11);
   --line-strong: rgba(239, 233, 224, .22);
+  --danger: #f0a597;
 
   --serif: "Noto Serif Display", "Times New Roman", serif;
   --sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -59,6 +61,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -851,6 +854,379 @@ html.lenis { scroll-behavior: auto; }
 @keyframes pop { from { opacity: 0; translate: 0 22px; } }
 .catalog__note { margin: 28px 0 0; font-size: .875rem; color: var(--muted); }
 ::view-transition-group(*) { animation-duration: .55s; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
+.card__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: -6px 0 16px; }
+.card__price strong { font-family: var(--serif); font-weight: 400; font-size: 1.35rem; line-height: 1.1; font-variant-numeric: lining-nums; }
+.card__price span { font-size: .8125rem; color: var(--muted); }
+.card__stock { margin: -6px 0 16px; font-size: .8125rem; color: var(--muted); }
+.card.is-out .card__media img { filter: grayscale(.7) brightness(.75); }
+.card__initial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(3.4rem, 7vw, 5rem);
+  color: rgba(212, 176, 138, .55);
+  background: radial-gradient(120% 90% at 50% 100%, rgba(212, 176, 138, .18), transparent 62%);
+}
+.cards__empty { grid-column: 1 / -1; padding: 40px 20px; border: 1px dashed var(--line-strong); color: var(--muted); text-align: center; }
+
+/* ---------- Отзывы ---------- */
+.reviews__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.reviews__summary { display: flex; align-items: center; gap: 12px; margin: 18px 0 0; color: var(--muted); }
+.reviews__summary strong { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; color: var(--text); font-variant-numeric: lining-nums; }
+.reviews__nav { display: flex; gap: 10px; }
+.reviews__nav .icon-btn:disabled { opacity: .35; cursor: default; }
+.reviews__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(86%, 410px);
+  gap: clamp(14px, 2vw, 24px);
+  margin: clamp(32px, 5vw, 56px) calc(var(--gutter) * -1) 0;
+  padding: 4px var(--gutter) 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.reviews__track::-webkit-scrollbar { display: none; }
+.reviews__track:focus-visible { outline-offset: -2px; }
+.review {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 250px;
+  margin: 0;
+  padding: clamp(22px, 3vw, 32px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.stars { display: flex; gap: 3px; color: var(--accent); }
+.stars .ic { width: 16px; height: 16px; }
+.stars .is-off { color: var(--line-strong); }
+.review__text {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.review.is-expanded .review__text { display: block; -webkit-line-clamp: unset; }
+.review__more { align-self: flex-start; color: var(--accent); font-size: .875rem; font-weight: 500; }
+.review__foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: auto; font-size: .875rem; color: var(--muted); }
+.review__name { font-weight: 500; color: var(--text); }
+.review.is-skeleton { gap: 16px; }
+.sk {
+  display: block;
+  background: linear-gradient(90deg, rgba(239, 233, 224, .05) 25%, rgba(239, 233, 224, .11) 37%, rgba(239, 233, 224, .05) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+.sk--line { width: 90px; height: 14px; }
+.sk--block { height: 110px; }
+.sk--short { width: 40%; height: 14px; margin-top: auto; }
+@keyframes shimmer { from { background-position: 100% 50%; } to { background-position: 0 50%; } }
+.reviews__empty {
+  margin-top: clamp(32px, 5vw, 56px);
+  padding: clamp(28px, 5vw, 48px);
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+  text-align: center;
+}
+.reviews__empty p { margin: 0 0 16px; }
+.reviews__empty p:last-child { margin-bottom: 0; }
+.reviews__cta { display: flex; align-items: center; flex-wrap: wrap; gap: 14px 22px; margin-top: 32px; }
+.reviews__cta p { margin: 0; font-size: .875rem; color: var(--muted); }
+
+/* ---------- Формы ---------- */
+.field { display: flex; flex-direction: column; gap: 8px; min-inline-size: 0; margin: 0 0 20px; padding: 0; border: 0; }
+.field > label, .field > legend, .field__label { padding: 0; font-size: .875rem; font-weight: 500; color: var(--text); }
+.field > legend { margin-bottom: 8px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.input {
+  width: 100%;
+  height: 50px;
+  padding: 0 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; /* меньше 16px iPhone приближает поле при фокусе */
+  transition: border-color .3s, box-shadow .3s;
+}
+textarea.input { height: auto; min-height: 120px; padding: 13px 16px; line-height: 1.5; resize: vertical; }
+.input::placeholder { color: #8d857a; }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 176, 138, .18); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+.field__error { margin: 0; font-size: .8125rem; color: var(--danger); }
+.field__error:empty { display: none; }
+.field__hint { margin: 10px 0 0; font-size: .8125rem; color: var(--muted); }
+.field .field__hint { margin: 0; }
+.field__meta { display: flex; justify-content: space-between; gap: 12px; }
+.field__count { margin-left: auto; font-size: .8125rem; color: var(--muted); }
+.form-status { min-height: 1.4em; margin: 0 0 14px; font-size: .875rem; color: var(--muted); }
+.form-status:empty { min-height: 0; margin: 0; }
+.form-status.is-error { color: var(--danger); }
+.form-status.is-ok { color: var(--accent); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.select { position: relative; }
+.select select { appearance: none; -webkit-appearance: none; padding-right: 44px; cursor: pointer; }
+.select::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  rotate: 45deg;
+  translate: 0 -70%;
+  pointer-events: none;
+}
+.input-wrap { position: relative; }
+.input-wrap .input { padding-right: 52px; }
+.input-wrap__btn {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+.input-wrap__btn:hover { color: var(--text); }
+.input-wrap__btn .ic-eye-slash, .input-wrap__btn[aria-pressed="true"] .ic-eye { display: none; }
+.input-wrap__btn[aria-pressed="true"] .ic-eye-slash { display: block; }
+
+.rating-input { display: flex; gap: 4px; }
+.rating-input label {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--line-strong);
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: color .2s, scale .25s var(--ease);
+}
+.rating-input label.is-on { color: var(--accent); }
+.rating-input label:hover { scale: 1.12; }
+.rating-input input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.switch { display: inline-flex; align-items: center; gap: 12px; margin: 4px 0 22px; cursor: pointer; font-size: .9375rem; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch__track { position: relative; width: 46px; height: 26px; border-radius: 999px; background: var(--line-strong); transition: background-color .3s; }
+.switch__track::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: translate .35s var(--ease);
+}
+.switch input:checked + .switch__track { background: var(--accent); }
+.switch input:checked + .switch__track::after { translate: 20px 0; background: var(--accent-ink); }
+.switch input:focus-visible + .switch__track { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.photo { display: flex; align-items: center; gap: 16px; }
+.photo__preview {
+  flex: none;
+  width: 88px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg-2);
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+  font-size: 1.6rem;
+}
+.photo__preview img { width: 100%; height: 100%; object-fit: cover; }
+.photo__actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.photo__pick { cursor: pointer; }
+.photo__pick:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.link-btn { color: var(--muted); font-size: .875rem; text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:hover { color: var(--text); }
+.btn--small { height: 42px; padding: 0 18px; font-size: .875rem; gap: 8px; }
+.btn--small .ic { width: 1.15em; height: 1.15em; }
+.btn--danger { border: 1px solid var(--danger); color: var(--danger); }
+.btn--danger:hover { background: var(--danger); color: var(--accent-ink); }
+
+/* ---------- Диалоги ---------- */
+.dialog {
+  width: min(540px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+}
+.dialog--small { width: min(400px, calc(100% - 32px)); }
+.dialog::backdrop { background: rgba(5, 4, 4, .74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.dialog[open] { animation: dialogIn .5s var(--ease); }
+@keyframes dialogIn { from { opacity: 0; translate: 0 18px; } }
+.dialog__inner { padding: clamp(22px, 4vw, 36px); }
+.dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.dialog__title { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2rem); line-height: 1.1; }
+.dialog__done { text-align: center; padding: 12px 0 4px; }
+.dialog__done p { margin: 0 0 22px; color: var(--muted); }
+.dialog__done .dialog__title { color: var(--text); margin-bottom: 12px; }
+.dialog__done .btn { margin: 4px 5px; vertical-align: middle; }
+.confirm__text { margin: 0 0 24px; font-size: 1.0625rem; }
+.confirm__actions { display: flex; justify-content: flex-end; gap: 10px; }
+/* Окна открываются поверх всего, включая свой курсор: пока окно открыто, возвращаем обычный */
+html:has(dialog[open]) .cursor { display: none; }
+.has-cursor:has(dialog[open]), .has-cursor:has(dialog[open]) * { cursor: revert !important; }
+
+/* ---------- Панель администратора ---------- */
+.admin {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+}
+.admin__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px var(--gutter);
+  background: rgba(12, 11, 10, .92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.admin__label { font-family: var(--serif); font-size: 1.5rem; line-height: 1; }
+.admin__spacer { flex: 1; }
+.admin__main { max-width: 960px; margin: 0 auto; padding: 32px var(--gutter) 96px; }
+.admin__loading { color: var(--muted); }
+.panel { padding: clamp(22px, 4vw, 40px); background: var(--surface); border: 1px solid var(--line); }
+.panel .dialog__title { margin-bottom: 24px; }
+.panel__text { margin: -12px 0 22px; font-size: .9375rem; color: var(--muted); }
+.login .panel { max-width: 440px; margin: 6vh auto 0; }
+#password-form { max-width: 480px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 26px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: .9375rem;
+  font-weight: 500;
+  transition: color .3s;
+}
+.tab:hover, .tab[aria-selected="true"] { color: var(--text); }
+.tab[aria-selected="true"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--accent); }
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: .75rem;
+  font-weight: 600;
+}
+.toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+.toolbar .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.toolbar .chip { height: 38px; padding: 0 14px; font-size: .875rem; }
+.toolbar__note { margin: 0; color: var(--muted); font-size: .9375rem; }
+.adm-list { display: grid; gap: 12px; }
+.adm-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 18px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.adm-item--review { grid-template-columns: minmax(0, 1fr) auto; }
+.adm-item__thumb {
+  width: 64px;
+  height: 80px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg-2);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.8rem;
+  color: rgba(212, 176, 138, .6);
+}
+.adm-item__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.adm-item__head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.adm-item__title { margin: 0; font-weight: 600; font-size: 1rem; overflow-wrap: anywhere; }
+.adm-item__meta { margin: 4px 0 0; font-size: .8125rem; color: var(--muted); }
+.adm-item__text { margin: 10px 0 0; white-space: pre-line; overflow-wrap: anywhere; font-size: .9375rem; }
+.adm-item__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.adm-item__actions .btn { height: 38px; padding: 0 14px; }
+.adm-item__actions .icon-btn { width: 38px; height: 38px; }
+.adm-item__actions .icon-btn:disabled { opacity: .3; cursor: default; }
+.status {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: .75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.status--pending { border-color: var(--accent); color: var(--accent); }
+.status--approved { border-color: transparent; background: rgba(212, 176, 138, .16); color: var(--text); }
+.adm-empty { padding: 36px 20px; border: 1px dashed var(--line-strong); text-align: center; color: var(--muted); }
+.adm-empty p { margin: 0 0 14px; }
+.adm-empty p:last-child { margin: 0; }
+.adm-item.is-skeleton { grid-template-columns: 1fr; gap: 12px; }
+.footer__links { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+
+@media (max-width: 860px) {
+  .reviews__nav { display: none; }
+  .adm-item { grid-template-columns: auto minmax(0, 1fr); }
+  .adm-item--review { grid-template-columns: minmax(0, 1fr); }
+  .adm-item__actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (max-width: 560px) {
+  .card__price strong { font-size: 1.15rem; }
+  .field-row { grid-template-columns: 1fr; }
+  .dialog { width: 100%; max-width: 100%; max-height: 94dvh; margin: auto 0 0; border-inline: 0; border-bottom: 0; }
+  @keyframes dialogIn { from { translate: 0 40px; opacity: 0; } }
+  .admin__bar .btn--small { padding: 0 12px; }
+  .admin__bar .btn--small .ic { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none !important; }
+}
 
 /* ---------- Масляные или спиртовые ---------- */
 .compare__grid {
@@ -1060,6 +1436,19 @@ html.lenis { scroll-behavior: auto; }
   <symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
   <symbol id="i-arrow-up" viewBox="0 0 256 256"><path d="M205.66,117.66a8,8,0,0,1-11.32,0L136,59.31V216a8,8,0,0,1-16,0V59.31L61.66,117.66a8,8,0,0,1-11.32-11.32l72-72a8,8,0,0,1,11.32,0l72,72A8,8,0,0,1,205.66,117.66Z"/></symbol>
   <symbol id="i-vk" viewBox="0 0 24 24"><path d="m9.489.004.729-.003h3.564l.73.003.914.01.433.007.418.011.403.014.388.016.374.021.36.025.345.03.333.033c1.74.196 2.933.616 3.833 1.516.9.9 1.32 2.092 1.516 3.833l.034.333.029.346.025.36.02.373.025.588.012.41.013.644.009.915.004.98-.001 3.313-.003.73-.01.914-.007.433-.011.418-.014.403-.016.388-.021.374-.025.36-.03.345-.033.333c-.196 1.74-.616 2.933-1.516 3.833-.9.9-2.092 1.32-3.833 1.516l-.333.034-.346.029-.36.025-.373.02-.588.025-.41.012-.644.013-.915.009-.98.004-3.313-.001-.73-.003-.914-.01-.433-.007-.418-.011-.403-.014-.388-.016-.374-.021-.36-.025-.345-.03-.333-.033c-1.74-.196-2.933-.616-3.833-1.516-.9-.9-1.32-2.092-1.516-3.833l-.034-.333-.029-.346-.025-.36-.02-.373-.025-.588-.012-.41-.013-.644-.009-.915-.004-.98.001-3.313.003-.73.01-.914.007-.433.011-.418.014-.403.016-.388.021-.374.025-.36.03-.345.033-.333c.196-1.74.616-2.933 1.516-3.833.9-.9 2.092-1.32 3.833-1.516l.333-.034.346-.029.36-.025.373-.02.588-.025.41-.012.644-.013.915-.009ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z"/></symbol>
+  <symbol id="i-star-fill" viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></symbol>
+  <symbol id="i-pencil-simple" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></symbol>
+  <symbol id="i-eye-slash" viewBox="0 0 256 256"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"/></symbol>
+  <symbol id="i-sign-out" viewBox="0 0 256 256"><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"/></symbol>
+  <symbol id="i-image-square" viewBox="0 0 256 256"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM48,48H208v77.38l-24.69-24.7a16,16,0,0,0-22.62,0L53.37,208H48ZM208,208H76l96-96,36,36v60ZM96,120A24,24,0,1,0,72,96,24,24,0,0,0,96,120Zm0-32a8,8,0,1,1-8,8A8,8,0,0,1,96,88Z"/></symbol>
+  <symbol id="i-arrow-clockwise" viewBox="0 0 256 256"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></symbol>
+  <symbol id="i-caret-up" viewBox="0 0 256 256"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"/></symbol>
+  <symbol id="i-caret-down" viewBox="0 0 256 256"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></symbol>
 </svg>
 <div id="top-sentinel" aria-hidden="true"></div>
 <a class="skip" href="#main">Перейти к содержанию</a>
@@ -1070,6 +1459,7 @@ html.lenis { scroll-behavior: auto; }
       <a href="#about">Обо мне</a>
       <a href="#catalog">Ароматы</a>
       <a href="#order">Как заказать</a>
+      <a href="#reviews" data-needs-api hidden>Отзывы</a>
       <a href="#contacts">Контакты</a>
     </nav>
     <div class="header__actions">
@@ -1088,7 +1478,8 @@ html.lenis { scroll-behavior: auto; }
     <a href="#about" style="--i:0">Обо мне</a>
     <a href="#catalog" style="--i:1">Ароматы</a>
     <a href="#order" style="--i:2">Как заказать</a>
-    <a href="#contacts" style="--i:3">Контакты</a>
+    <a href="#reviews" style="--i:3" data-needs-api hidden>Отзывы</a>
+    <a href="#contacts" style="--i:4">Контакты</a>
   </nav>
   <a class="btn btn--primary btn--wide" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Хочу подобрать аромат." target="_blank" rel="noopener">
     <svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>Написать в WhatsApp
@@ -1356,7 +1747,7 @@ html.lenis { scroll-behavior: auto; }
           <button class="chip" type="button" aria-pressed="false" data-f="fresh">Свежие</button>
         </div>
       </div>
-      <ul class="cards">
+      <ul class="cards" id="catalog-cards">
           <li class="card" data-family="oriental" data-reveal style="--d:0.00s;view-transition-name:card-0">
             <figure class="card__media">
               <img loading="lazy" width="600" height="750" alt="Флакон с янтарным маслом и пипеткой"
@@ -1525,6 +1916,35 @@ html.lenis { scroll-behavior: auto; }
     </div>
   </section>
 
+  <!-- ================= Отзывы (работают, когда сайт открыт с сервером) ================= -->
+  <section class="section reviews" id="reviews" data-needs-api hidden>
+    <div class="wrap">
+      <div class="reviews__head">
+        <div>
+          <p class="eyebrow" data-reveal>Отзывы</p>
+          <h2 class="h2" data-reveal style="--d:.05s">Впечатления клиентов</h2>
+          <p class="reviews__summary" id="reviews-summary" hidden></p>
+        </div>
+        <div class="reviews__nav" id="reviews-nav" hidden>
+          <button class="icon-btn" type="button" data-dir="-1" aria-label="Предыдущие отзывы"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-arrow-left"/></svg></button>
+          <button class="icon-btn" type="button" data-dir="1" aria-label="Следующие отзывы"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </div>
+
+      <div class="reviews__track" id="reviews-track" tabindex="0" role="region" aria-label="Отзывы клиентов" aria-busy="true">
+        <div class="review is-skeleton" aria-hidden="true"><span class="sk sk--line"></span><span class="sk sk--block"></span><span class="sk sk--short"></span></div>
+        <div class="review is-skeleton" aria-hidden="true"><span class="sk sk--line"></span><span class="sk sk--block"></span><span class="sk sk--short"></span></div>
+        <div class="review is-skeleton" aria-hidden="true"><span class="sk sk--line"></span><span class="sk sk--block"></span><span class="sk sk--short"></span></div>
+      </div>
+      <div class="reviews__empty" id="reviews-empty" hidden></div>
+
+      <div class="reviews__cta" data-reveal>
+        <button class="btn btn--ghost magnetic" type="button" id="review-open">Оставить отзыв</button>
+        <p>Отзыв придёт Макке в WhatsApp и после проверки появится на сайте.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= Контакты ================= -->
   <section class="section contacts" id="contacts">
     <div class="wrap">
@@ -1589,13 +2009,261 @@ html.lenis { scroll-behavior: auto; }
   <div class="wrap footer__inner">
     <span class="logo">Макка</span>
     <p>© <span id="year">2026</span> Парфюмерный уголок</p>
-    <a class="footer__top" href="#top">Наверх <svg class="ic ic-arrow-up" aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></a>
+    <div class="footer__links">
+      <a class="footer__top" href="#admin" data-needs-api hidden>Вход для администратора</a>
+      <a class="footer__top" href="#top">Наверх <svg class="ic ic-arrow-up" aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></a>
+    </div>
   </div>
 </footer>
 
 <a class="fab" href="https://wa.me/79220651737" data-wa="Здравствуйте, Макка! Хочу подобрать аромат." target="_blank" rel="noopener" aria-label="Написать в WhatsApp">
   <svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>
 </a>
+<!-- ================= Форма отзыва ================= -->
+<dialog class="dialog" id="review-dialog" aria-labelledby="review-title" data-lenis-prevent>
+  <div class="dialog__inner">
+    <div class="dialog__head">
+      <h3 class="dialog__title" id="review-title">Ваш отзыв</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button>
+    </div>
+    <form id="review-form" novalidate>
+      <div class="field">
+        <label for="rv-name">Ваше имя</label>
+        <input class="input" id="rv-name" name="name" maxlength="60" autocomplete="given-name" required aria-describedby="rv-name-err">
+        <p class="field__error" id="rv-name-err"></p>
+      </div>
+      <fieldset class="field">
+        <legend>Оценка</legend>
+        <div class="rating-input" data-rating-input></div>
+      </fieldset>
+      <div class="field">
+        <label for="rv-text">Отзыв</label>
+        <textarea class="input" id="rv-text" name="text" rows="5" maxlength="1000" required aria-describedby="rv-text-err rv-text-count"></textarea>
+        <div class="field__meta"><p class="field__error" id="rv-text-err"></p><span class="field__count" id="rv-text-count">0 / 1000</span></div>
+      </div>
+      <p class="form-status" role="status"></p>
+      <button class="btn btn--primary btn--wide" type="submit"><svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>Отправить в WhatsApp</button>
+      <p class="field__hint">Откроется WhatsApp с готовым сообщением. После проверки отзыв появится на сайте.</p>
+    </form>
+    <div class="dialog__done" id="review-done" hidden>
+      <p class="dialog__title">Спасибо!</p>
+      <p>Осталось нажать «Отправить» в WhatsApp. После проверки отзыв появится на сайте.</p>
+      <a class="btn btn--primary" id="review-wa-link" href="https://wa.me/79220651737" target="_blank" rel="noopener"><svg class="ic ic-whatsapp-logo" aria-hidden="true" focusable="false"><use href="#i-whatsapp-logo"/></svg>Открыть WhatsApp</a>
+      <button class="btn btn--ghost" type="button" data-close>Закрыть</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= Панель администратора ================= -->
+<div class="admin" id="admin" role="dialog" aria-modal="true" aria-label="Панель администратора" data-lenis-prevent hidden>
+  <header class="admin__bar">
+    <span class="admin__label">Панель</span>
+    <span class="admin__spacer"></span>
+    <button class="btn btn--ghost btn--small" type="button" id="admin-logout" hidden><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-sign-out"/></svg>Выйти</button>
+    <button class="btn btn--ghost btn--small" type="button" id="admin-close">На сайт</button>
+  </header>
+
+  <main class="admin__main">
+    <p class="admin__loading" id="admin-loading">Проверяем вход…</p>
+
+    <section class="login" id="admin-setup" hidden>
+      <form class="panel" id="setup-form" novalidate>
+        <h2 class="dialog__title">Первая настройка</h2>
+        <p class="panel__text">Панель сохраняет изменения прямо в репозиторий на GitHub. Для этого нужен ключ доступа GitHub. В репозитории он хранится только в зашифрованном виде, расшифровать его можно вашим паролем.</p>
+        <div class="field">
+          <label for="setup-phone">Телефон для входа</label>
+          <input class="input" id="setup-phone" type="tel" inputmode="tel" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="setup-password">Пароль</label>
+          <input class="input" id="setup-password" type="password" autocomplete="new-password" minlength="8" required>
+        </div>
+        <div class="field">
+          <label for="setup-repeat">Пароль ещё раз</label>
+          <input class="input" id="setup-repeat" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="setup-token">Ключ доступа GitHub</label>
+          <input class="input" id="setup-token" type="password" autocomplete="off" spellcheck="false" required aria-describedby="setup-token-hint">
+          <p class="field__hint" id="setup-token-hint">Fine-grained token: доступ только к репозиторию makka-perfume, право Contents: Read and write.</p>
+        </div>
+        <p class="form-status" role="status"></p>
+        <button class="btn btn--primary btn--wide" type="submit">Сохранить и войти</button>
+      </form>
+    </section>
+
+    <section class="login" id="admin-login" hidden>
+      <form class="panel" id="login-form" novalidate>
+        <h2 class="dialog__title">Вход для администратора</h2>
+        <div class="field">
+          <label for="login-phone">Телефон</label>
+          <input class="input" id="login-phone" name="phone" type="tel" inputmode="tel" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="login-password">Пароль</label>
+          <div class="input-wrap">
+            <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" required>
+            <button class="input-wrap__btn" type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false">
+              <svg class="ic ic-eye" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg><svg class="ic ic-eye-slash" aria-hidden="true" focusable="false"><use href="#i-eye-slash"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="form-status" role="status"></p>
+        <button class="btn btn--primary btn--wide" type="submit">Войти</button>
+      </form>
+    </section>
+
+    <section class="adm" id="admin-app" hidden>
+      <p class="toolbar__note" style="margin:0 0 18px">Изменения сохраняются в GitHub и появляются на сайте через 1–2 минуты.</p>
+      <div class="tabs" role="tablist" aria-label="Разделы панели">
+        <button class="tab" type="button" role="tab" id="tab-btn-perfumes" aria-controls="tab-perfumes" aria-selected="true">Ароматы</button>
+        <button class="tab" type="button" role="tab" id="tab-btn-reviews" aria-controls="tab-reviews" aria-selected="false" tabindex="-1">Отзывы</button>
+        <button class="tab" type="button" role="tab" id="tab-btn-settings" aria-controls="tab-settings" aria-selected="false" tabindex="-1">Пароль</button>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="tab-perfumes" aria-labelledby="tab-btn-perfumes">
+        <div class="toolbar">
+          <p class="toolbar__note" id="perfume-count"></p>
+          <button class="btn btn--primary btn--small" type="button" id="adm-perfume-add"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Добавить аромат</button>
+        </div>
+        <div class="adm-list" id="adm-perfumes" aria-live="polite"></div>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="tab-reviews" aria-labelledby="tab-btn-reviews" hidden>
+        <div class="toolbar">
+          <div class="chips" id="review-filters" role="group" aria-label="Фильтр отзывов">
+            <button class="chip" type="button" data-filter="approved" aria-pressed="true">Опубликованы</button>
+            <button class="chip" type="button" data-filter="hidden" aria-pressed="false">Скрыты</button>
+            <button class="chip" type="button" data-filter="all" aria-pressed="false">Все</button>
+          </div>
+          <button class="btn btn--primary btn--small" type="button" id="adm-review-add"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg>Добавить отзыв</button>
+        </div>
+        <div class="adm-list" id="adm-reviews" aria-live="polite"></div>
+      </div>
+
+      <div class="tabpanel" role="tabpanel" id="tab-settings" aria-labelledby="tab-btn-settings" hidden>
+        <form class="panel" id="password-form" novalidate>
+          <h2 class="dialog__title">Смена пароля</h2>
+          <p class="panel__text">Ключ доступа будет перешифрован новым паролем. Старый пароль перестанет подходить, когда обновится сайт (1–2 минуты).</p>
+          <div class="field">
+            <label for="pw-current">Текущий пароль</label>
+            <input class="input" id="pw-current" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="field">
+            <label for="pw-next">Новый пароль</label>
+            <input class="input" id="pw-next" type="password" autocomplete="new-password" minlength="8" required aria-describedby="pw-hint">
+            <p class="field__hint" id="pw-hint">Не короче 8 символов.</p>
+          </div>
+          <div class="field">
+            <label for="pw-repeat">Новый пароль ещё раз</label>
+            <input class="input" id="pw-repeat" type="password" autocomplete="new-password" required>
+          </div>
+          <p class="form-status" role="status"></p>
+          <button class="btn btn--primary btn--wide" type="submit">Сменить пароль</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Аромат: добавление и правка -->
+<dialog class="dialog" id="perfume-dialog" aria-labelledby="perfume-title" data-lenis-prevent>
+  <div class="dialog__inner">
+    <div class="dialog__head">
+      <h3 class="dialog__title" id="perfume-title">Новый аромат</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button>
+    </div>
+    <form id="perfume-form" novalidate>
+      <div class="field">
+        <label for="pf-name">Название</label>
+        <input class="input" id="pf-name" name="name" maxlength="80" required>
+      </div>
+      <div class="field">
+        <label for="pf-notes">Ноты</label>
+        <input class="input" id="pf-notes" name="notes" maxlength="160" placeholder="например, уд, роза, шафран" aria-describedby="pf-notes-hint">
+        <p class="field__hint" id="pf-notes-hint">Через запятую. На сайте будут через точку.</p>
+      </div>
+      <div class="field">
+        <label for="pf-family">Семейство</label>
+        <div class="select">
+          <select class="input" id="pf-family" name="family">
+            <option value="oriental">Восточный</option>
+            <option value="woody">Древесный</option>
+            <option value="floral">Цветочный</option>
+            <option value="fresh">Свежий</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="pf-price">Цена, ₽</label>
+          <input class="input" id="pf-price" name="price" inputmode="numeric" aria-describedby="pf-price-hint">
+        </div>
+        <div class="field">
+          <label for="pf-volume">Объём</label>
+          <input class="input" id="pf-volume" name="volume" maxlength="30" placeholder="например, 6 мл">
+        </div>
+      </div>
+      <p class="field__hint" id="pf-price-hint" style="margin:-8px 0 20px">Без цены на карточке будет кнопка «Узнать цену».</p>
+      <div class="field">
+        <span class="field__label" id="pf-photo-label">Фото</span>
+        <div class="photo" aria-labelledby="pf-photo-label">
+          <div class="photo__preview" id="pf-preview"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-image-square"/></svg></div>
+          <div class="photo__actions">
+            <label class="btn btn--ghost btn--small photo__pick">Выбрать фото<input type="file" id="pf-file" accept="image/*" class="sr-only"></label>
+            <button class="link-btn" type="button" id="pf-photo-remove" hidden>Убрать фото</button>
+          </div>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="pf-stock" name="inStock" checked>
+        <span class="switch__track" aria-hidden="true"></span>
+        <span>В наличии</span>
+      </label>
+      <p class="form-status" role="status"></p>
+      <button class="btn btn--primary btn--wide" type="submit">Сохранить</button>
+    </form>
+  </div>
+</dialog>
+
+<!-- Отзыв, добавленный вручную -->
+<dialog class="dialog" id="adm-review-dialog" aria-labelledby="adm-review-title" data-lenis-prevent>
+  <div class="dialog__inner">
+    <div class="dialog__head">
+      <h3 class="dialog__title" id="adm-review-title">Добавить отзыв</h3>
+      <button class="icon-btn" type="button" data-close aria-label="Закрыть"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-x"/></svg></button>
+    </div>
+    <form id="adm-review-form" novalidate>
+      <p class="panel__text">Скопируйте отзыв из WhatsApp. На сайте он появится через 1–2 минуты.</p>
+      <div class="field">
+        <label for="ar-name">Имя клиента</label>
+        <input class="input" id="ar-name" name="name" maxlength="60" required>
+      </div>
+      <fieldset class="field">
+        <legend>Оценка</legend>
+        <div class="rating-input" data-rating-input></div>
+      </fieldset>
+      <div class="field">
+        <label for="ar-text">Текст отзыва</label>
+        <textarea class="input" id="ar-text" name="text" rows="5" maxlength="1000" required></textarea>
+      </div>
+      <p class="form-status" role="status"></p>
+      <button class="btn btn--primary btn--wide" type="submit">Опубликовать</button>
+    </form>
+  </div>
+</dialog>
+
+<!-- Подтверждение -->
+<dialog class="dialog dialog--small" id="confirm-dialog" aria-labelledby="confirm-text" data-lenis-prevent>
+  <div class="dialog__inner">
+    <p class="confirm__text" id="confirm-text"></p>
+    <div class="confirm__actions">
+      <button class="btn btn--ghost btn--small" type="button" data-answer="no">Отмена</button>
+      <button class="btn btn--danger btn--small" type="button" data-answer="yes">Удалить</button>
+    </div>
+  </div>
+</dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Lenis 1.3.26 · MIT License · darkroom.engineering -->
@@ -1693,23 +2361,25 @@ html.lenis { scroll-behavior: auto; }
   }
   setOpen(0);
 
-  // Каталог: фильтр по семействам
-  const cards = $$('.card');
+  // Каталог: фильтр по семействам (карточки могут перестраиваться из панели, поэтому ищем их при каждом клике)
+  const cardsList = $('#catalog-cards');
   const filters = $('.filters');
+  const currentCards = () => $$('.card', cardsList);
+  let catalogFilter = 'all';
+  const applyFilter = () => currentCards().forEach((c) => {
+    c.hidden = !(catalogFilter === 'all' || c.dataset.family === catalogFilter);
+    if (!c.hidden) c.classList.add('in');
+  });
   filters.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
     if (!chip || chip.getAttribute('aria-pressed') === 'true') return;
     $$('.chip', filters).forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-    const f = chip.dataset.f;
-    const apply = () => cards.forEach((c) => {
-      c.hidden = !(f === 'all' || c.dataset.family === f);
-      if (!c.hidden) c.classList.add('in');
-    });
-    if (reduce) { apply(); return; }
-    if (document.startViewTransition) { document.startViewTransition(apply); return; }
-    apply();
+    catalogFilter = chip.dataset.f;
+    if (reduce) { applyFilter(); return; }
+    if (document.startViewTransition) { document.startViewTransition(applyFilter); return; }
+    applyFilter();
     let n = 0;
-    cards.forEach((c) => {
+    currentCards().forEach((c) => {
       c.classList.remove('is-pop');
       if (c.hidden) return;
       c.style.setProperty('--n', n++);
@@ -1718,11 +2388,13 @@ html.lenis { scroll-behavior: auto; }
     });
   });
   if (finePointer) {
-    cards.forEach((c) => c.addEventListener('pointermove', (e) => {
+    cardsList.addEventListener('pointermove', (e) => {
+      const c = e.target.closest('.card');
+      if (!c) return;
       const r = c.getBoundingClientRect();
       c.style.setProperty('--x', `${e.clientX - r.left}px`);
       c.style.setProperty('--y', `${e.clientY - r.top}px`);
-    }));
+    });
   }
 
   // Пирамида нот: флакон наполняется слоями по мере прокрутки
@@ -1872,6 +2544,949 @@ html.lenis { scroll-behavior: auto; }
     });
   }, { rootMargin: '-45% 0px -50% 0px' });
   $$('main section[id]').forEach((s) => navIO.observe(s));
+
+  // ============================================================
+  // Каталог, отзывы и панель администратора на GitHub Pages.
+  // Данные лежат в репозитории: catalog.json, reviews.json, фото в images/.
+  // Панель сохраняет изменения через GitHub API ключом доступа, который хранится
+  // в admin-key.json в зашифрованном виде (ключ шифрования получается из телефона и пароля).
+  // ============================================================
+  {
+    const GH = { owner: '34agaev34-dotcom', repo: 'makka-perfume', branch: 'main' };
+    const GH_API = `https://api.github.com/repos/${GH.owner}/${GH.repo}`;
+    const RAW = `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/`;
+    const KDF_ITERATIONS = 600000;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const rub = new Intl.NumberFormat('ru-RU');
+    const FAMILY_LABEL = { oriental: 'Восточный', woody: 'Древесный', floral: 'Цветочный', fresh: 'Свежий' };
+    const FAMILIES = Object.keys(FAMILY_LABEL);
+
+    // Элементы собираются через textContent: тексты отзывов и названия не попадают в HTML как разметка
+    const h = (tag, props = {}, ...children) => {
+      const node = document.createElement(tag);
+      for (const [k, v] of Object.entries(props)) {
+        if (v == null || v === false) continue;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+        else node.setAttribute(k, v === true ? '' : v);
+      }
+      node.append(...children.flat().filter((c) => c != null && c !== false && c !== ''));
+      return node;
+    };
+    const icon = (name, cls = '') => {
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('class', `ic ic-${name} ${cls}`.trim());
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      const use = document.createElementNS(SVG_NS, 'use');
+      use.setAttribute('href', `#i-${name}`);
+      svg.append(use);
+      return svg;
+    };
+    const stars = (rating) => h('div', { class: 'stars', role: 'img', 'aria-label': `Оценка ${rating} из 5` },
+      [1, 2, 3, 4, 5].map((i) => icon('star-fill', i <= rating ? '' : 'is-off')));
+    const plural = (n, one, few, many) => {
+      const a = n % 10, b = n % 100;
+      return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many;
+    };
+    const monthYear = (iso) => new Date(iso).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }).replace(/\s*г\.$/, '');
+    const dateTime = (iso) => new Date(iso).toLocaleString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    const actBtn = (label, ic, onclick, cls = 'btn--ghost') =>
+      h('button', { class: `btn btn--small ${cls}`, type: 'button', onclick }, icon(ic), label);
+    const normalizePhone = (value) => {
+      let d = String(value || '').replace(/\D/g, '');
+      if (d.length === 11 && d.startsWith('8')) d = '7' + d.slice(1);
+      if (d.length === 10) d = '7' + d;
+      return d;
+    };
+    const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);
+
+    const setStatus = (form, text = '', kind = '') => {
+      const el = $('.form-status', form);
+      el.textContent = text;
+      el.className = `form-status${kind ? ' is-' + kind : ''}`;
+    };
+    const setBusy = (form, busy, busyLabel) => {
+      const btn = $('button[type="submit"]', form);
+      btn.dataset.label ??= btn.innerHTML;
+      btn.disabled = busy;
+      if (busy) btn.textContent = busyLabel; else btn.innerHTML = btn.dataset.label;
+    };
+
+    // Пока открыта панель или окно, страница под ними не прокручивается (в том числе плавной прокруткой Lenis)
+    const adminEl = $('#admin');
+    const syncScrollLock = () => {
+      const locked = !adminEl.hidden || Boolean($('dialog[open]')) || menu.classList.contains('is-open');
+      document.body.classList.toggle('no-scroll', locked);
+      if (lenis) (locked ? lenis.stop() : lenis.start());
+    };
+    const openDialog = (d) => {
+      if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+      syncScrollLock();
+    };
+    const closeDialog = (d) => (typeof d.close === 'function' ? d.close() : d.removeAttribute('open'));
+    $$('dialog').forEach((d) => {
+      d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-close]')) closeDialog(d); });
+      d.addEventListener('close', syncScrollLock);
+    });
+
+    const confirmDlg = $('#confirm-dialog');
+    function confirmAction(text, okLabel = 'Удалить') {
+      $('#confirm-text').textContent = text;
+      $('[data-answer="yes"]', confirmDlg).textContent = okLabel;
+      openDialog(confirmDlg);
+      return new Promise((resolve) => {
+        const finish = (answer) => {
+          confirmDlg.removeEventListener('click', onClick);
+          confirmDlg.removeEventListener('close', onClose);
+          if (confirmDlg.open) closeDialog(confirmDlg);
+          resolve(answer);
+        };
+        const onClick = (e) => { const b = e.target.closest('[data-answer]'); if (b) finish(b.dataset.answer === 'yes'); };
+        const onClose = () => finish(false);
+        confirmDlg.addEventListener('click', onClick);
+        confirmDlg.addEventListener('close', onClose);
+      });
+    }
+
+    // Звёзды-переключатели (радиокнопки, работают и с клавиатуры)
+    function ratingInput(container, name) {
+      const labels = [];
+      for (let i = 1; i <= 5; i++) {
+        const id = `${name}-${i}`;
+        const label = h('label', { for: id, title: `${i} из 5` }, icon('star-fill'),
+          h('span', { class: 'sr-only', text: `${i} ${plural(i, 'звезда', 'звезды', 'звёзд')}` }));
+        labels.push(label);
+        container.append(h('input', { type: 'radio', name, id, value: String(i), class: 'sr-only' }), label);
+      }
+      const value = () => Number($('input:checked', container)?.value || 0);
+      const paint = (v) => labels.forEach((l, k) => l.classList.toggle('is-on', k < v));
+      container.addEventListener('change', () => paint(value()));
+      labels.forEach((l, k) => l.addEventListener('pointerenter', () => paint(k + 1)));
+      container.addEventListener('pointerleave', () => paint(value()));
+      return {
+        value,
+        set(v) { $$('input', container).forEach((inp) => { inp.checked = Number(inp.value) === v; }); paint(v); },
+      };
+    }
+
+    // ---------- Чтение данных сайта ----------
+    async function fetchSiteJSON(path) {
+      const res = await fetch(`${path}?v=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw Object.assign(new Error('Файл недоступен'), { status: res.status });
+      return res.json();
+    }
+
+    // Адрес картинки: фото из начального каталога (Unsplash) или своё из папки images/.
+    // Сразу после загрузки своё фото берём напрямую из репозитория: сайт обновляется не мгновенно.
+    const isUnsplash = (src) => /^https:\/\/images\.unsplash\.com\/photo-[\w-]+$/.test(src || '');
+    const isLocalImage = (src) => /^images\/[\w.-]+\.(jpe?g|png|webp)$/i.test(src || '');
+    const unsplashSrc = (url, w, hgt) => `${url}?auto=format&fit=crop&w=${w}&h=${hgt}&q=70`;
+    const localSrc = (path, fresh) => (fresh ? RAW + path : path);
+
+    // ---------- Каталог ----------
+    function catalogCard(p, i, fresh) {
+      let media;
+      if (isUnsplash(p.image)) {
+        media = h('img', {
+          loading: 'lazy', width: 600, height: 750, alt: p.imageAlt || p.name,
+          src: unsplashSrc(p.image, 600, 750),
+          srcset: `${unsplashSrc(p.image, 400, 500)} 400w, ${unsplashSrc(p.image, 600, 750)} 600w`,
+          sizes: '(max-width: 860px) 50vw, 25vw',
+        });
+      } else if (isLocalImage(p.image)) {
+        media = h('img', { loading: 'lazy', width: 600, height: 750, alt: p.imageAlt || p.name, src: localSrc(p.image, fresh) });
+      } else {
+        media = h('span', { class: 'card__initial', 'aria-hidden': 'true', text: p.name.trim().charAt(0).toUpperCase() });
+      }
+      const hasPrice = p.price != null && p.price !== '';
+      const vol = p.volume ? ` (${p.volume})` : '';
+      const message = !p.inStock
+        ? `Здравствуйте, Макка! Подскажите, когда будет в наличии «${p.name}»?`
+        : hasPrice
+          ? `Здравствуйте, Макка! Хочу заказать «${p.name}»${vol} за ${rub.format(p.price)} ₽.`
+          : `Здравствуйте, Макка! Интересует аромат «${p.name}». Подскажете цену и наличие?`;
+      const label = !p.inStock ? 'Спросить' : hasPrice ? 'Заказать' : 'Узнать цену';
+      return h('li', {
+        class: `card${p.inStock ? '' : ' is-out'}`,
+        'data-family': FAMILIES.includes(p.family) ? p.family : 'oriental',
+        'data-reveal': true,
+        style: `--d:${((i % 4) * 0.08).toFixed(2)}s;view-transition-name:card-${i}`,
+      },
+        h('figure', { class: 'card__media' }, media),
+        h('div', { class: 'card__body' },
+          h('p', { class: 'card__family', text: FAMILY_LABEL[p.family] || '' }),
+          h('h3', { class: 'card__title', text: p.name }),
+          p.notes && h('p', { class: 'card__notes', text: p.notes }),
+          p.inStock && hasPrice && h('p', { class: 'card__price' },
+            h('strong', { text: `${rub.format(p.price)} ₽` }), p.volume && h('span', { text: p.volume })),
+          !p.inStock && h('p', { class: 'card__stock', text: 'Нет в наличии' }),
+          h('a', { class: 'card__btn', href: waHref(message), target: '_blank', rel: 'noopener', 'aria-label': `${label}: ${p.name}` },
+            label, ' ', icon('arrow-up-right'))));
+    }
+
+    // В наличии сначала, внутри групп порядок как в панели
+    const publicOrder = (items) => [...items.filter((p) => p.inStock), ...items.filter((p) => !p.inStock)];
+
+    function renderCatalog(items, fresh = false) {
+      const ordered = publicOrder(items);
+      const revealed = new Set(currentCards().map((c, i) => (c.classList.contains('in') ? i : -1)));
+      const cards = ordered.map((p, i) => catalogCard(p, i, fresh));
+      cardsList.replaceChildren(...(cards.length
+        ? cards
+        : [h('li', { class: 'cards__empty', text: 'Каталог обновляется. Напишите в WhatsApp, подскажу, что есть сейчас.' })]));
+      const families = new Set(ordered.map((p) => p.family));
+      $$('.chip', filters).forEach((c) => { c.hidden = c.dataset.f !== 'all' && !families.has(c.dataset.f); });
+      if (catalogFilter !== 'all' && !families.has(catalogFilter)) {
+        catalogFilter = 'all';
+        $$('.chip', filters).forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.f === 'all')));
+      }
+      cards.forEach((c, i) => {
+        c.hidden = !(catalogFilter === 'all' || c.dataset.family === catalogFilter);
+        if (revealed.has(i)) c.classList.add('in'); else revealIO.observe(c);
+      });
+    }
+
+    // ---------- Отзывы на сайте ----------
+    const reviewsSection = $('#reviews');
+    const track = $('#reviews-track');
+    const reviewsEmpty = $('#reviews-empty');
+    const reviewsSummary = $('#reviews-summary');
+    const reviewsNav = $('#reviews-nav');
+    let reviewsNavIO = null;
+
+    function reviewCard(r) {
+      const text = h('blockquote', { class: 'review__text', text: r.text });
+      const more = h('button', { class: 'review__more', type: 'button', hidden: true, 'aria-expanded': 'false', text: 'Читать полностью' });
+      const card = h('figure', { class: 'review' }, stars(r.rating), text, more,
+        h('figcaption', { class: 'review__foot' },
+          h('span', { class: 'review__name', text: r.name }),
+          h('span', { text: monthYear(r.createdAt) })));
+      more.addEventListener('click', () => {
+        const open = card.classList.toggle('is-expanded');
+        more.textContent = open ? 'Свернуть' : 'Читать полностью';
+        more.setAttribute('aria-expanded', String(open));
+      });
+      return { card, text, more };
+    }
+
+    function setupReviewsNav() {
+      reviewsNavIO?.disconnect();
+      const cards = track.children;
+      const [prev, next] = $$('button', reviewsNav);
+      const seen = new Map();
+      reviewsNavIO = new IntersectionObserver((entries) => {
+        entries.forEach((e) => seen.set(e.target, e.intersectionRatio > 0.9));
+        const atStart = seen.get(cards[0]);
+        const atEnd = seen.get(cards[cards.length - 1]);
+        prev.disabled = Boolean(atStart);
+        next.disabled = Boolean(atEnd);
+        reviewsNav.hidden = Boolean(atStart && atEnd);
+      }, { root: track, threshold: [0, 0.9, 1] });
+      reviewsNavIO.observe(cards[0]);
+      reviewsNavIO.observe(cards[cards.length - 1]);
+    }
+
+    function renderReviews(all) {
+      const items = all.filter((r) => r.status !== 'hidden')
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      track.hidden = items.length === 0;
+      reviewsEmpty.hidden = items.length > 0;
+      if (!items.length) {
+        reviewsSummary.hidden = true;
+        reviewsNav.hidden = true;
+        reviewsEmpty.replaceChildren(h('p', { text: 'Пока здесь нет отзывов. Поделитесь впечатлением первым.' }));
+        return;
+      }
+      const avg = items.reduce((sum, r) => sum + r.rating, 0) / items.length;
+      reviewsSummary.replaceChildren(
+        h('strong', { text: avg.toFixed(1).replace('.', ',') }),
+        stars(Math.round(avg)),
+        h('span', { text: `${items.length} ${plural(items.length, 'отзыв', 'отзыва', 'отзывов')}` }));
+      reviewsSummary.hidden = false;
+      const built = items.map(reviewCard);
+      track.replaceChildren(...built.map((b) => b.card));
+      requestAnimationFrame(() => built.forEach(({ text, more }) => { more.hidden = text.scrollHeight <= text.clientHeight + 2; }));
+      setupReviewsNav();
+    }
+
+    reviewsNav.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-dir]');
+      if (!b) return;
+      const first = track.firstElementChild;
+      const step = first ? first.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || '0') : track.clientWidth;
+      track.scrollBy({ left: Number(b.dataset.dir) * step, behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    // Форма отзыва: без сервера отзыв уходит Макке в WhatsApp, она публикует его из панели
+    const reviewDlg = $('#review-dialog');
+    const reviewForm = $('#review-form');
+    const reviewDone = $('#review-done');
+    const reviewWaLink = $('#review-wa-link');
+    const rvName = $('#rv-name');
+    const rvText = $('#rv-text');
+    const rvCount = $('#rv-text-count');
+    const reviewRating = ratingInput($('[data-rating-input]', reviewForm), 'rv-rating');
+    let reviewSent = true;
+
+    const fieldError = (input, message) => {
+      input.setAttribute('aria-invalid', message ? 'true' : 'false');
+      $('#' + input.getAttribute('aria-describedby').split(' ')[0]).textContent = message;
+    };
+
+    rvText.addEventListener('input', () => { rvCount.textContent = `${rvText.value.length} / 1000`; });
+    $('#review-open').addEventListener('click', () => {
+      if (reviewSent) {
+        reviewForm.reset();
+        reviewRating.set(5);
+        rvCount.textContent = '0 / 1000';
+        fieldError(rvName, '');
+        fieldError(rvText, '');
+        reviewSent = false;
+      }
+      setStatus(reviewForm);
+      reviewForm.hidden = false;
+      reviewDone.hidden = true;
+      openDialog(reviewDlg);
+    });
+
+    reviewForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = rvName.value.trim();
+      const text = rvText.value.trim();
+      fieldError(rvName, name.length < 2 ? 'Укажите имя' : '');
+      fieldError(rvText, text.length < 10 ? 'Напишите хотя бы пару слов (от 10 символов)' : '');
+      if (name.length < 2) { rvName.focus(); return; }
+      if (text.length < 10) { rvText.focus(); return; }
+      const rating = reviewRating.value();
+      const message = `Отзыв для сайта\nИмя: ${name}\nОценка: ${rating} из 5\n\n${text}`;
+      const href = waHref(message);
+      reviewWaLink.href = href;
+      window.open(href, '_blank', 'noopener');
+      reviewSent = true;
+      reviewForm.hidden = true;
+      reviewDone.hidden = false;
+      reviewWaLink.focus();
+    });
+
+    // ---------- GitHub ----------
+    let ghToken = null;
+    let ghPhone = null;
+
+    const bytesToB64 = (bytes) => {
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+      return btoa(bin);
+    };
+    const b64ToBytes = (b64) => Uint8Array.from(atob(b64.replace(/\s/g, '')), (c) => c.charCodeAt(0));
+    const textToB64 = (text) => bytesToB64(new TextEncoder().encode(text));
+    const b64ToText = (b64) => new TextDecoder().decode(b64ToBytes(b64));
+
+    async function gh(path, { method = 'GET', body } = {}) {
+      let res;
+      try {
+        res = await fetch(GH_API + path, {
+          method,
+          cache: 'no-store',
+          headers: {
+            Authorization: `Bearer ${ghToken}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+            ...(body ? { 'Content-Type': 'application/json' } : {}),
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+      } catch {
+        throw Object.assign(new Error('Нет связи с GitHub. Проверьте интернет.'), { status: 0 });
+      }
+      const data = res.status === 204 ? {} : await res.json().catch(() => null);
+      if (!res.ok) {
+        const message = res.status === 401
+          ? 'Ключ доступа GitHub недействителен или истёк. Войдите заново.'
+          : res.status === 403 || (res.status === 404 && method !== 'GET')
+            ? 'У ключа нет права записи в репозиторий.'
+            : res.status === 409 || res.status === 422
+              ? 'Данные только что изменились. Попробуйте ещё раз.'
+              : data?.message || 'GitHub вернул ошибку. Попробуйте позже.';
+        throw Object.assign(new Error(message), { status: res.status });
+      }
+      return data;
+    }
+
+    async function readRepoJSON(path) {
+      try {
+        const file = await gh(`/contents/${path}?ref=${GH.branch}`);
+        return { data: JSON.parse(b64ToText(file.content)), sha: file.sha };
+      } catch (err) {
+        if (err.status === 404) return { data: null, sha: null };
+        throw err;
+      }
+    }
+
+    const putFile = (path, contentB64, message, sha) =>
+      gh(`/contents/${path}`, { method: 'PUT', body: { message, content: contentB64, branch: GH.branch, ...(sha ? { sha } : {}) } });
+
+    // Читаем свежую версию, меняем и записываем; если файл успели изменить, повторяем один раз
+    async function updateRepoJSON(path, change, message) {
+      for (let attempt = 0; ; attempt++) {
+        const { data, sha } = await readRepoJSON(path);
+        const doc = data && Array.isArray(data.items) ? data : { items: [] };
+        doc.items = change(doc.items);
+        try {
+          await putFile(path, textToB64(JSON.stringify(doc, null, 2) + '\n'), message, sha);
+          return doc.items;
+        } catch (err) {
+          if (attempt > 0 || (err.status !== 409 && err.status !== 422)) throw err;
+        }
+      }
+    }
+
+    async function uploadImage(dataUrl, name) {
+      const path = `images/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+      await putFile(path, dataUrl.split(',')[1], `Фото: ${name}`);
+      return path;
+    }
+
+    async function deleteImage(path) {
+      if (!isLocalImage(path)) return;
+      try {
+        const file = await gh(`/contents/${path}?ref=${GH.branch}`);
+        await gh(`/contents/${path}`, { method: 'DELETE', body: { message: `Удалить фото ${path}`, sha: file.sha, branch: GH.branch } });
+      } catch {
+        // старое фото не помешает сайту, если удалить его не получилось
+      }
+    }
+
+    // ---------- Ключ доступа: шифрование паролем ----------
+    async function deriveKey(password, salt, iterations) {
+      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, base,
+        { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    }
+    async function encryptToken(token, phone, password) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveKey(password, salt, KDF_ITERATIONS);
+      const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(phone) },
+        key, new TextEncoder().encode(token));
+      return { v: 1, kdf: 'PBKDF2-SHA256', iterations: KDF_ITERATIONS, salt: bytesToB64(salt), iv: bytesToB64(iv), data: bytesToB64(new Uint8Array(data)) };
+    }
+    async function decryptToken(file, phone, password) {
+      const key = await deriveKey(password, b64ToBytes(file.salt), file.iterations || KDF_ITERATIONS);
+      const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBytes(file.iv), additionalData: new TextEncoder().encode(phone) },
+        key, b64ToBytes(file.data));
+      return new TextDecoder().decode(plain);
+    }
+
+    const SESSION_KEY = 'mk-admin';
+    const saveSession = () => { try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: ghToken, phone: ghPhone })); } catch {} };
+    const loadSession = () => { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; } };
+    const clearSession = () => { ghToken = null; ghPhone = null; try { sessionStorage.removeItem(SESSION_KEY); } catch {} };
+
+    // ---------- Панель ----------
+    const adminViews = { loading: $('#admin-loading'), setup: $('#admin-setup'), login: $('#admin-login'), app: $('#admin-app') };
+    const logoutBtn = $('#admin-logout');
+    const loginForm = $('#login-form');
+    const setupForm = $('#setup-form');
+    let adminReturnFocus = null;
+
+    const showAdminView = (name) => {
+      Object.entries(adminViews).forEach(([k, v]) => { v.hidden = k !== name; });
+      logoutBtn.hidden = name !== 'app';
+    };
+    function showLogin(message = '') {
+      showAdminView('login');
+      setStatus(loginForm, message, message ? 'error' : '');
+      $('#login-phone').focus();
+    }
+    function enterAdmin() {
+      saveSession();
+      showAdminView('app');
+      loadAdminPerfumes();
+      loadAdminReviews();
+    }
+    async function openAdmin() {
+      if (!adminEl.hidden) return;
+      adminReturnFocus = document.activeElement;
+      setMenu(false);
+      adminEl.hidden = false;
+      syncScrollLock();
+      showAdminView('loading');
+      const session = loadSession();
+      if (session?.token) {
+        ghToken = session.token;
+        ghPhone = session.phone;
+        enterAdmin();
+        return;
+      }
+      try {
+        await fetchSiteJSON('admin-key.json');
+        showLogin();
+      } catch (err) {
+        if (err.status === 404) { showAdminView('setup'); $('#setup-phone').focus(); } else showLogin('Нет связи с сайтом. Проверьте интернет.');
+      }
+    }
+    function closeAdmin() {
+      adminEl.hidden = true;
+      syncScrollLock();
+      if (location.hash === '#admin') history.replaceState(null, '', location.pathname + location.search);
+      adminReturnFocus?.focus?.();
+    }
+    function adminError(err, container, retry) {
+      if (err.status === 401) { clearSession(); showLogin(err.message); return; }
+      if (!container) { toast(err.message); return; }
+      container.replaceChildren(h('div', { class: 'adm-empty' },
+        h('p', { text: err.message }),
+        retry && h('p', {}, actBtn('Повторить', 'arrow-clockwise', retry))));
+    }
+    const skeletonRows = (n) => Array.from({ length: n }, () =>
+      h('div', { class: 'adm-item is-skeleton', 'aria-hidden': 'true' }, h('span', { class: 'sk sk--line' }), h('span', { class: 'sk', style: 'height:44px' })));
+
+    $('#admin-close').addEventListener('click', closeAdmin);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !adminEl.hidden && !$('dialog[open]')) closeAdmin();
+    });
+
+    $('[data-toggle-password]').addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      const input = $('#login-password');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(show));
+      btn.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = normalizePhone($('#login-phone').value);
+      const password = $('#login-password').value;
+      if (!phone || !password) { setStatus(loginForm, 'Введите телефон и пароль', 'error'); return; }
+      setStatus(loginForm);
+      setBusy(loginForm, true, 'Входим…');
+      try {
+        const keyFile = await fetchSiteJSON('admin-key.json');
+        try {
+          ghToken = await decryptToken(keyFile, phone, password);
+        } catch {
+          throw new Error('Неверный телефон или пароль');
+        }
+        ghPhone = phone;
+        $('#login-password').value = '';
+        enterAdmin();
+      } catch (err) {
+        setStatus(loginForm, err.status === 404 ? 'Панель ещё не настроена.' : err.message, 'error');
+      } finally {
+        setBusy(loginForm, false, 'Входим…');
+      }
+    });
+
+    setupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = normalizePhone($('#setup-phone').value);
+      const password = $('#setup-password').value;
+      const token = $('#setup-token').value.trim();
+      if (phone.length !== 11) { setStatus(setupForm, 'Укажите телефон полностью, например 8 922 065-17-37', 'error'); return; }
+      if (password.length < 8) { setStatus(setupForm, 'Пароль должен быть не короче 8 символов', 'error'); return; }
+      if (password !== $('#setup-repeat').value) { setStatus(setupForm, 'Пароли не совпадают', 'error'); return; }
+      if (!token) { setStatus(setupForm, 'Вставьте ключ доступа GitHub', 'error'); return; }
+      setStatus(setupForm);
+      setBusy(setupForm, true, 'Сохраняем…');
+      try {
+        ghToken = token;
+        const keyFile = await encryptToken(token, phone, password);
+        // Запись файла заодно проверяет, что у ключа есть право записи
+        await putFile('admin-key.json', textToB64(JSON.stringify(keyFile, null, 2) + '\n'), 'Настройка панели администратора');
+        ghPhone = phone;
+        setupForm.reset();
+        enterAdmin();
+        toast('Панель настроена');
+      } catch (err) {
+        ghToken = null;
+        setStatus(setupForm, err.status === 422 ? 'Панель уже настроена. Обновите страницу и войдите.' : err.status === 401 ? 'Ключ доступа GitHub не подходит. Проверьте, что он скопирован целиком.' : err.message, 'error');
+      } finally {
+        setBusy(setupForm, false, 'Сохраняем…');
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => { clearSession(); showLogin(); });
+
+    // Вкладки
+    const tabs = $$('.tab');
+    const selectTab = (tab) => tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      $('#' + t.getAttribute('aria-controls')).hidden = !on;
+    });
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => selectTab(t));
+      t.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        const nextTab = tabs[(i + d + tabs.length) % tabs.length];
+        selectTab(nextTab);
+        nextTab.focus();
+      });
+    });
+
+    // ---------- Ароматы в панели ----------
+    const admPerfumesEl = $('#adm-perfumes');
+    const perfumeCount = $('#perfume-count');
+    let admPerfumes = [];
+    let busy = false;
+
+    const thumbSrc = (src) => (isUnsplash(src) ? unsplashSrc(src, 128, 160) : isLocalImage(src) ? RAW + src : null);
+
+    function adminPerfumeRow(p, i, list) {
+      const hasPrice = p.price != null && p.price !== '';
+      const meta = [hasPrice ? `${rub.format(p.price)} ₽` : 'цена не указана', FAMILY_LABEL[p.family], p.volume].filter(Boolean).join(', ');
+      const thumb = thumbSrc(p.image);
+      return h('article', { class: 'adm-item' },
+        h('div', { class: 'adm-item__thumb' }, thumb ? h('img', { src: thumb, alt: '' }) : p.name.trim().charAt(0).toUpperCase()),
+        h('div', {},
+          h('div', { class: 'adm-item__head' },
+            h('h3', { class: 'adm-item__title', text: p.name }),
+            h('span', { class: `status${p.inStock ? ' status--approved' : ''}`, text: p.inStock ? 'В наличии' : 'Нет в наличии' })),
+          h('p', { class: 'adm-item__meta', text: meta }),
+          p.notes && h('p', { class: 'adm-item__text', text: p.notes })),
+        h('div', { class: 'adm-item__actions' },
+          h('button', { class: 'icon-btn', type: 'button', 'aria-label': `Выше: ${p.name}`, disabled: i === 0, onclick: () => movePerfume(p, -1) }, icon('caret-up')),
+          h('button', { class: 'icon-btn', type: 'button', 'aria-label': `Ниже: ${p.name}`, disabled: i === list.length - 1, onclick: () => movePerfume(p, 1) }, icon('caret-down')),
+          actBtn(p.inStock ? 'Закончился' : 'Снова в наличии', p.inStock ? 'eye-slash' : 'eye', () => toggleStock(p)),
+          actBtn('Изменить', 'pencil-simple', () => openPerfumeForm(p)),
+          actBtn('Удалить', 'trash', () => deletePerfume(p), 'btn--danger')));
+    }
+
+    function renderAdminPerfumes() {
+      const inStock = admPerfumes.filter((p) => p.inStock).length;
+      perfumeCount.textContent = admPerfumes.length
+        ? `${admPerfumes.length} ${plural(admPerfumes.length, 'аромат', 'аромата', 'ароматов')}, в наличии ${inStock}`
+        : '';
+      admPerfumesEl.replaceChildren(...(admPerfumes.length
+        ? admPerfumes.map(adminPerfumeRow)
+        : [h('div', { class: 'adm-empty' }, h('p', { text: 'Каталог пуст. Добавьте первый аромат.' }))]));
+    }
+
+    async function loadAdminPerfumes() {
+      admPerfumesEl.replaceChildren(...skeletonRows(3));
+      try {
+        admPerfumes = (await readRepoJSON('catalog.json')).data?.items || [];
+        renderAdminPerfumes();
+      } catch (err) {
+        adminError(err, admPerfumesEl, loadAdminPerfumes);
+      }
+    }
+
+    // Одно изменение за раз: каждое сохранение — отдельная запись в репозитории
+    async function changeCatalog(change, message, done) {
+      if (busy) { toast('Подождите, предыдущее изменение ещё сохраняется'); return false; }
+      busy = true;
+      try {
+        admPerfumes = await updateRepoJSON('catalog.json', change, message);
+        renderAdminPerfumes();
+        renderCatalog(admPerfumes, true);
+        if (done) toast(done);
+        return true;
+      } catch (err) {
+        adminError(err);
+        return false;
+      } finally {
+        busy = false;
+      }
+    }
+
+    const movePerfume = (p, dir) => changeCatalog((items) => {
+      const i = items.findIndex((x) => x.id === p.id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= items.length) return items;
+      const next = [...items];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    }, `Каталог: порядок, ${p.name}`);
+
+    const toggleStock = (p) => changeCatalog(
+      (items) => items.map((x) => (x.id === p.id ? { ...x, inStock: !x.inStock } : x)),
+      `Каталог: наличие, ${p.name}`,
+      p.inStock ? 'Отмечено: нет в наличии' : 'Отмечено: в наличии');
+
+    async function deletePerfume(p) {
+      if (!(await confirmAction(`Удалить «${p.name}» из каталога?`))) return;
+      const ok = await changeCatalog((items) => items.filter((x) => x.id !== p.id), `Каталог: удалить ${p.name}`, 'Аромат удалён');
+      if (ok) deleteImage(p.image);
+    }
+
+    // Форма аромата
+    const pfDlg = $('#perfume-dialog');
+    const pfForm = $('#perfume-form');
+    const pfPreview = $('#pf-preview');
+    const pfFile = $('#pf-file');
+    const pfRemove = $('#pf-photo-remove');
+    let pfEditing = null;
+    let pfImage; // undefined: не менять, null: убрать, строка: новое фото
+
+    const setPreview = (src) => {
+      const url = src && src.startsWith('data:') ? src : thumbSrc(src);
+      pfPreview.replaceChildren(url ? h('img', { src: url, alt: 'Фото аромата' }) : icon('image-square'));
+      pfRemove.hidden = !src;
+    };
+    // «уд, роза, шафран» → «Уд · роза · шафран», как в карточках
+    const normalizeNotes = (value) => value.split(/\s*[,;·]\s*/).map((s) => s.trim()).filter(Boolean)
+      .map((s, i) => (i === 0 ? s.charAt(0).toUpperCase() + s.slice(1) : s)).join(' · ');
+
+    function openPerfumeForm(p = null) {
+      pfEditing = p;
+      pfImage = undefined;
+      pfForm.reset();
+      setStatus(pfForm);
+      $('#perfume-title').textContent = p ? 'Изменить аромат' : 'Новый аромат';
+      $('#pf-name').value = p?.name ?? '';
+      $('#pf-notes').value = p?.notes ?? '';
+      $('#pf-family').value = FAMILIES.includes(p?.family) ? p.family : 'oriental';
+      $('#pf-price').value = p?.price != null ? String(p.price) : '';
+      $('#pf-volume').value = p?.volume ?? '';
+      $('#pf-stock').checked = p ? p.inStock !== false : true;
+      setPreview(p?.image || null);
+      openDialog(pfDlg);
+    }
+
+    // Фото уменьшается в браузере до 1000px, чтобы быстро загружалось
+    async function resizeImage(file, max = 1000) {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.onload = () => resolve(i);
+          i.onerror = reject;
+          i.src = url;
+        });
+        const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.naturalWidth * scale);
+        canvas.height = Math.round(img.naturalHeight * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#11100e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', 0.85);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    $('#adm-perfume-add').addEventListener('click', () => openPerfumeForm());
+    pfRemove.addEventListener('click', () => { pfImage = null; setPreview(null); });
+    pfFile.addEventListener('change', async () => {
+      const file = pfFile.files?.[0];
+      pfFile.value = '';
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { setStatus(pfForm, 'Выберите изображение', 'error'); return; }
+      setStatus(pfForm, 'Обрабатываем фото…');
+      try {
+        pfImage = await resizeImage(file);
+        setPreview(pfImage);
+        setStatus(pfForm);
+      } catch {
+        setStatus(pfForm, 'Не удалось открыть фото. Попробуйте другое, в формате JPEG или PNG.', 'error');
+      }
+    });
+
+    pfForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('#pf-name').value.trim().slice(0, 80);
+      const priceRaw = $('#pf-price').value.replace(/\s/g, '').replace(',', '.');
+      if (name.length < 2) { setStatus(pfForm, 'Укажите название', 'error'); $('#pf-name').focus(); return; }
+      if (priceRaw && (!Number.isFinite(Number(priceRaw)) || Number(priceRaw) < 0)) {
+        setStatus(pfForm, 'Укажите цену числом, например 2500, или оставьте поле пустым', 'error');
+        $('#pf-price').focus();
+        return;
+      }
+      if (busy) { setStatus(pfForm, 'Подождите, предыдущее изменение ещё сохраняется', 'error'); return; }
+      const fields = {
+        name,
+        notes: normalizeNotes($('#pf-notes').value).slice(0, 160),
+        family: $('#pf-family').value,
+        price: priceRaw ? Math.round(Number(priceRaw)) : null,
+        volume: $('#pf-volume').value.trim().slice(0, 30),
+        inStock: $('#pf-stock').checked,
+      };
+      setStatus(pfForm);
+      setBusy(pfForm, true, 'Сохраняем…');
+      try {
+        const oldImage = pfEditing?.image || null;
+        let image = oldImage;
+        let imageAlt = pfEditing?.imageAlt || '';
+        if (typeof pfImage === 'string') { image = await uploadImage(pfImage, name); imageAlt = name; }
+        else if (pfImage === null) { image = null; imageAlt = ''; }
+        const id = pfEditing?.id || newId();
+        const ok = await changeCatalog((items) => (pfEditing
+          ? items.map((x) => (x.id === id ? { ...x, ...fields, image, imageAlt } : x))
+          : [...items, { id, ...fields, image, imageAlt }]),
+          pfEditing ? `Каталог: изменить ${name}` : `Каталог: добавить ${name}`,
+          pfEditing ? 'Аромат обновлён' : 'Аромат добавлен');
+        if (!ok) return;
+        if (oldImage && oldImage !== image) deleteImage(oldImage);
+        closeDialog(pfDlg);
+      } catch (err) {
+        if (err.status === 401) { closeDialog(pfDlg); adminError(err); } else setStatus(pfForm, err.message, 'error');
+      } finally {
+        setBusy(pfForm, false, 'Сохраняем…');
+      }
+    });
+
+    // ---------- Отзывы в панели ----------
+    const STATUS_LABEL = { approved: 'Опубликован', hidden: 'Скрыт' };
+    const EMPTY_REVIEWS = {
+      approved: 'Опубликованных отзывов пока нет. Добавьте отзыв, который прислали в WhatsApp.',
+      hidden: 'Скрытых отзывов нет.',
+      all: 'Отзывов пока нет.',
+    };
+    const admReviewsEl = $('#adm-reviews');
+    let admReviews = [];
+    let admFilter = 'approved';
+
+    const byNewest = (a, b) => String(b.createdAt).localeCompare(String(a.createdAt));
+
+    function adminReviewRow(r) {
+      const status = r.status === 'hidden' ? 'hidden' : 'approved';
+      return h('article', { class: 'adm-item adm-item--review' },
+        h('div', {},
+          h('div', { class: 'adm-item__head' },
+            h('h3', { class: 'adm-item__title', text: r.name }),
+            stars(r.rating),
+            h('span', { class: `status status--${status}`, text: STATUS_LABEL[status] })),
+          h('p', { class: 'adm-item__meta', text: dateTime(r.createdAt) }),
+          h('p', { class: 'adm-item__text', text: r.text })),
+        h('div', { class: 'adm-item__actions' },
+          status === 'hidden'
+            ? actBtn('Показать', 'eye', () => setReviewStatus(r, 'approved'), 'btn--primary')
+            : actBtn('Скрыть', 'eye-slash', () => setReviewStatus(r, 'hidden')),
+          actBtn('Удалить', 'trash', () => deleteReview(r), 'btn--danger')));
+    }
+
+    function renderAdminReviews() {
+      const list = admReviews.filter((r) => admFilter === 'all' || (r.status === 'hidden' ? 'hidden' : 'approved') === admFilter).sort(byNewest);
+      admReviewsEl.replaceChildren(...(list.length
+        ? list.map(adminReviewRow)
+        : [h('div', { class: 'adm-empty' }, h('p', { text: EMPTY_REVIEWS[admFilter] }))]));
+    }
+
+    async function loadAdminReviews() {
+      admReviewsEl.replaceChildren(...skeletonRows(3));
+      try {
+        admReviews = (await readRepoJSON('reviews.json')).data?.items || [];
+        renderAdminReviews();
+      } catch (err) {
+        adminError(err, admReviewsEl, loadAdminReviews);
+      }
+    }
+
+    async function changeReviews(change, message, done) {
+      if (busy) { toast('Подождите, предыдущее изменение ещё сохраняется'); return false; }
+      busy = true;
+      try {
+        admReviews = await updateRepoJSON('reviews.json', change, message);
+        renderAdminReviews();
+        renderReviews(admReviews);
+        reviewsSection.hidden = false;
+        if (done) toast(done);
+        return true;
+      } catch (err) {
+        adminError(err);
+        return false;
+      } finally {
+        busy = false;
+      }
+    }
+
+    const setReviewStatus = (r, status) => changeReviews(
+      (items) => items.map((x) => (x.id === r.id ? { ...x, status } : x)),
+      `Отзывы: ${status === 'hidden' ? 'скрыть' : 'показать'} отзыв ${r.name}`,
+      status === 'hidden' ? 'Отзыв скрыт' : 'Отзыв опубликован');
+
+    async function deleteReview(r) {
+      if (!(await confirmAction(`Удалить отзыв от «${r.name}»? Вернуть его будет нельзя.`))) return;
+      changeReviews((items) => items.filter((x) => x.id !== r.id), `Отзывы: удалить отзыв ${r.name}`, 'Отзыв удалён');
+    }
+
+    $('#review-filters').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-filter]');
+      if (!b) return;
+      admFilter = b.dataset.filter;
+      $$('[data-filter]', e.currentTarget).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      renderAdminReviews();
+    });
+
+    // Отзыв из WhatsApp
+    const arDlg = $('#adm-review-dialog');
+    const arForm = $('#adm-review-form');
+    const arRating = ratingInput($('[data-rating-input]', arForm), 'ar-rating');
+    $('#adm-review-add').addEventListener('click', () => {
+      arForm.reset();
+      arRating.set(5);
+      setStatus(arForm);
+      openDialog(arDlg);
+    });
+    arForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('#ar-name').value.trim().slice(0, 60);
+      const text = $('#ar-text').value.trim().slice(0, 1000);
+      if (name.length < 2 || text.length < 10) { setStatus(arForm, 'Заполните имя и текст (от 10 символов)', 'error'); return; }
+      setBusy(arForm, true, 'Сохраняем…');
+      const review = { id: newId(), name, text, rating: arRating.value() || 5, status: 'approved', createdAt: new Date().toISOString() };
+      const ok = await changeReviews((items) => [review, ...items], `Отзывы: добавить отзыв ${name}`, 'Отзыв опубликован');
+      setBusy(arForm, false, 'Сохраняем…');
+      if (ok) closeDialog(arDlg);
+    });
+
+    // ---------- Смена пароля: ключ доступа перешифровывается новым паролем ----------
+    const pwForm = $('#password-form');
+    pwForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const current = $('#pw-current').value;
+      const next = $('#pw-next').value;
+      if (!current) { setStatus(pwForm, 'Введите текущий пароль', 'error'); return; }
+      if (next.length < 8) { setStatus(pwForm, 'Новый пароль должен быть не короче 8 символов', 'error'); return; }
+      if (next !== $('#pw-repeat').value) { setStatus(pwForm, 'Пароли не совпадают', 'error'); return; }
+      setStatus(pwForm);
+      setBusy(pwForm, true, 'Сохраняем…');
+      try {
+        const file = await gh(`/contents/admin-key.json?ref=${GH.branch}`);
+        const keyFile = JSON.parse(b64ToText(file.content));
+        try { await decryptToken(keyFile, ghPhone, current); } catch { throw new Error('Текущий пароль указан неверно'); }
+        const updated = await encryptToken(ghToken, ghPhone, next);
+        await putFile('admin-key.json', textToB64(JSON.stringify(updated, null, 2) + '\n'), 'Смена пароля панели', file.sha);
+        pwForm.reset();
+        setStatus(pwForm, 'Пароль изменён', 'ok');
+      } catch (err) {
+        if (err.status === 401) adminError(err); else setStatus(pwForm, err.message, 'error');
+      } finally {
+        setBusy(pwForm, false, 'Сохраняем…');
+      }
+    });
+
+    // ---------- Запуск ----------
+    // Если файлы данных доступны (сайт открыт на GitHub Pages), каталог и отзывы берутся из них.
+    // Открытый с диска файл покажет встроенный каталог, а отзывы и вход будут скрыты.
+    (async () => {
+      let catalogOk = false;
+      try {
+        renderCatalog((await fetchSiteJSON('catalog.json')).items || []);
+        catalogOk = true;
+      } catch {}
+      try {
+        renderReviews((await fetchSiteJSON('reviews.json')).items || []);
+        $$('[data-needs-api]').forEach((el) => { el.hidden = el.matches('a[href="#admin"]') ? !catalogOk : false; });
+      } catch {
+        if (catalogOk) $$('a[href="#admin"]').forEach((el) => { el.hidden = false; });
+      } finally {
+        track.setAttribute('aria-busy', 'false');
+      }
+      if (!catalogOk) return;
+      window.addEventListener('hashchange', () => { if (location.hash === '#admin') openAdmin(); });
+      if (location.hash === '#admin') openAdmin();
+    })();
+  }
 
   if (reduce) return;
 

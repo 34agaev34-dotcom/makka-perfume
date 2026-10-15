@@ -1,0 +1,12 @@
+{
+  "items": [
+    { "id": "ud-i-roza", "name": "Уд и роза", "notes": "Уд · роза · шафран · амбра", "family": "oriental", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1709662217659-c7966220219f", "imageAlt": "Флакон с янтарным маслом и пипеткой" },
+    { "id": "shafran-i-ambra", "name": "Шафран и амбра", "notes": "Шафран · амбра · ваниль · бензоин", "family": "oriental", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1733660227163-01bc46e0d7d7", "imageAlt": "Круглый флакон духов на шёлке" },
+    { "id": "sandal-i-vanil", "name": "Сандал и ваниль", "notes": "Сандал · ваниль · кедр · мускус", "family": "woody", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1709660274780-d089327578d0", "imageAlt": "Пипетка над флаконом с янтарной жидкостью" },
+    { "id": "pachuli-i-kozha", "name": "Пачули и кожа", "notes": "Пачули · кожа · ветивер · уд", "family": "woody", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1709662217788-6a8a1b31562a", "imageAlt": "Пипетка над прозрачным флаконом, чёрно-белое фото" },
+    { "id": "roza-i-pion", "name": "Роза и пион", "notes": "Роза · пион · личи · мускус", "family": "floral", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1720423738890-37689a6f6b95", "imageAlt": "Красный стеклянный флакон" },
+    { "id": "zhasmin", "name": "Жасмин", "notes": "Жасмин · флёрдоранж · белые цветы", "family": "floral", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1646149757906-e6e9e9a7c77f", "imageAlt": "Флакон масляных духов с роликом" },
+    { "id": "belyj-muskus", "name": "Белый мускус", "notes": "Белый мускус · ландыш · бергамот", "family": "fresh", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1594125311687-3b1b3eafa9f4", "imageAlt": "Прозрачный флакон с чёрной крышкой на мраморе" },
+    { "id": "bergamot-i-neroli", "name": "Бергамот и нероли", "notes": "Бергамот · нероли · зелёный чай", "family": "fresh", "price": null, "volume": "", "inStock": true, "image": "https://images.unsplash.com/photo-1709662369957-0cbf9f8452fc", "imageAlt": "Пипетка над прозрачным флаконом" }
+  ]
+}
